@@ -1,0 +1,9 @@
+.DS_Store
+.env
+.env.*
+private.zsh
+*.key
+*.pem
+*.p12
+.gitleaks-report.*
+coverage/

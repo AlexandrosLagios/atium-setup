@@ -28,9 +28,8 @@ atium-setup/
 ├── README.md
 ├── Brewfile
 ├── dotfiles/
-│   ├── home/
-│   │   └── dot_zshrc
-│   └── config/atium/zsh/
+│   ├── dot_zshrc
+│   └── dot_config/atium/zsh/
 │       ├── aliases.zsh
 │       ├── functions.zsh
 │       ├── paths.zsh
@@ -49,9 +48,10 @@ atium-setup/
     └── secrets.md
 ```
 
-`dotfiles/` is the chezmoi source root and contains the real, active
-configuration. Files under `dotfiles/home` deploy to the home directory, and
-files under `dotfiles/config` deploy to `~/.config/atium`. The deployed
+`.chezmoiroot` makes `dotfiles/` the chezmoi source state and it contains
+the real, active configuration. `dotfiles/dot_zshrc` deploys to
+`~/.zshrc`, and files under `dotfiles/dot_config` deploy to
+`~/.config`. The deployed
 `~/.zshrc` stays deliberately small: it loads the real modular configuration
 from `~/.config/atium/zsh` and, if present, a local ignored private overlay.
 
@@ -81,8 +81,8 @@ replaced outside the repository.
 1. Clone this repository.
 2. Run `scripts/bootstrap` to install chezmoi and the declared command-line
    dependencies.
-3. Run `chezmoi init --source "$PWD/dotfiles"` and `chezmoi apply --source
-   "$PWD/dotfiles"` to deploy dotfiles.
+3. Run `chezmoi diff --source "$PWD"`, then
+   `chezmoi apply --source "$PWD"` to deploy dotfiles.
 4. Create the ignored local private overlay if needed.
 5. Run `scripts/sync-skills` to make canonical skills available in Codex and
    Claude.
