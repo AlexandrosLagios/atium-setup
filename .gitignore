@@ -8,3 +8,4 @@ private.zsh
 .gitleaks-report.*
 coverage/
 docs/superpowers/
+.idea

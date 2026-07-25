@@ -45,9 +45,11 @@ scripts/check-secrets
 
 ## Private configuration
 
-The only supported untracked shell overlay is
-`~/.config/atium/private.zsh`. It is loaded after the tracked modules and is
-for secrets or genuinely local settings only. See [the secrets guide](docs/secrets.md).
+All tracked files in this repository should be safe to publish. Keep public-safe
+configuration here. The only supported untracked shell overlay is
+`~/.config/atium/private.zsh`, loaded after the tracked modules; reserve it for
+real secrets and private machine state. If a secret reaches Git history, revoke
+and rotate it before considering history cleanup.
 
 ## Personal skill guard
 
