@@ -12,8 +12,8 @@ installation, or public-release safety controls.
 
 - Edit source files in this repository, never deployed files in `$HOME`.
 - Keep reusable skill content in `skills/<name>/SKILL.md` exactly once.
-- Keep the Codex plugin's `skills/` directory as a link to the canonical
-  `skills/` directory; never copy skill text into a plugin wrapper.
+- Keep the Codex plugin's `skills/` directory as generated links to portable
+  canonical skills; never copy skill text into a plugin wrapper.
 - Keep the Claude Code plugin's `skills/` directory as a link to the same
   canonical directory; Claude's installed cache is generated state.
 - Do not add credentials, access tokens, private endpoints, certificates, or
@@ -31,5 +31,5 @@ scripts/check-secrets
 git diff --check
 ```
 
-Use `scripts/sync-skills --dry-run` before deploying Codex links or removing
-legacy Claude links if you want to inspect the changes first.
+Use `scripts/refresh-plugins --dry-run` before deploying generated plugin links
+or removing legacy direct links if you want to inspect the changes first.

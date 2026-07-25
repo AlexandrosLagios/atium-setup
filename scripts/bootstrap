@@ -6,7 +6,8 @@ usage() {
 Usage: scripts/bootstrap [--apply]
 
 Preview deployment from this repository by default. With --apply, install the
-declared Homebrew dependencies, deploy dotfiles with chezmoi, and sync skills.
+declared Homebrew dependencies, deploy dotfiles with chezmoi, and refresh the
+local agent plugins.
 EOF
 }
 
@@ -45,8 +46,9 @@ fi
 
 if [ "$apply" = true ]; then
   chezmoi apply --source "$repo_root" --error-on-conflict
-  "$repo_root/scripts/sync-skills"
+  "$repo_root/scripts/refresh-plugins"
 else
   chezmoi diff --source "$repo_root"
+  "$repo_root/scripts/refresh-plugins" --dry-run
   printf '%s\n' 'preview complete; run scripts/bootstrap --apply to deploy'
 fi

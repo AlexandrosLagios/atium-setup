@@ -1,0 +1,63 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/refresh-plugins [--dry-run]
+
+Synchronize generated plugin links, remove legacy direct skill links, validate
+the plugin layouts, and install or refresh the local Codex and Claude plugins
+when their CLIs are available.
+EOF
+}
+
+dry_run=false
+case "${1:-}" in
+  "") ;;
+  --dry-run) dry_run=true ;;
+  --help|-h) usage; exit 0 ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+
+if [ "$dry_run" = true ]; then
+  "$repo_root/scripts/sync-plugin-skills" --dry-run
+  "$repo_root/scripts/sync-skills" --dry-run
+  printf '%s\n' 'would validate plugin layouts and refresh installed plugins'
+  exit 0
+fi
+
+"$repo_root/scripts/sync-plugin-skills"
+"$repo_root/scripts/sync-skills"
+python3 -m json.tool "$repo_root/.agents/plugins/marketplace.json" >/dev/null
+python3 -m json.tool "$repo_root/plugins/atium-skills/.codex-plugin/plugin.json" >/dev/null
+python3 -m json.tool "$repo_root/.claude-plugin/marketplace.json" >/dev/null
+python3 -m json.tool "$repo_root/plugins/atium-claude-skills/.claude-plugin/plugin.json" >/dev/null
+"$repo_root/tests/plugin-delivery.test.sh"
+
+if command -v codex >/dev/null 2>&1; then
+  if ! codex plugin marketplace list 2>&1 | grep -F "$repo_root/.agents/plugins/marketplace.json" >/dev/null; then
+    codex plugin marketplace add "$repo_root"
+  fi
+  codex plugin add atium-skills@personal >/dev/null
+  printf '%s\n' 'Codex plugin is available from the personal marketplace'
+else
+  printf '%s\n' 'Codex CLI not found; skipped Codex plugin installation'
+fi
+
+if command -v claude >/dev/null 2>&1; then
+  if ! claude plugin marketplace list 2>&1 | grep -F 'atium-setup' >/dev/null; then
+    claude plugin marketplace add "$repo_root"
+  fi
+  if claude plugin details atium-claude-skills@atium-setup >/dev/null 2>&1; then
+    claude plugin update atium-claude-skills@atium-setup
+  else
+    claude plugin install atium-claude-skills@atium-setup
+  fi
+  claude plugin validate "$repo_root" --strict
+  printf '%s\n' 'Claude plugin is installed or refreshed'
+else
+  printf '%s\n' 'Claude CLI not found; skipped Claude plugin installation'
+fi

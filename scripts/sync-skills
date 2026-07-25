@@ -5,11 +5,9 @@ usage() {
   cat <<'EOF'
 Usage: scripts/sync-skills [--dry-run]
 
-Create safe links from the canonical skills in this repository to Codex. Skills
-listed in skills/.codexignore are skipped. Claude Code loads the canonical
-skills through the atium-claude-skills plugin; old matching Claude skill links
-are removed to prevent duplicate discovery. Existing non-matching destinations
-are never replaced.
+Remove old direct Codex and Claude skill links. Both agents load the canonical
+skills through their respective plugins. Only matching links managed by this
+repository are removed; existing non-matching destinations are preserved.
 EOF
 }
 
@@ -42,48 +40,12 @@ fi
 source_dir=$(CDPATH= cd -- "$source_dir" && pwd)
 codex_dir="${ATIUM_CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
 claude_dir="${ATIUM_CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
-codex_exclude_file="${ATIUM_CODEX_EXCLUDE_FILE:-$source_dir/.codexignore}"
 found_skill=false
 
-is_codex_excluded() {
-  skill_name=$1
-  [ -f "$codex_exclude_file" ] && grep -F -x "$skill_name" "$codex_exclude_file" >/dev/null 2>&1
-}
-
-link_skill() {
+remove_legacy_link() {
   source_path=$1
   destination_root=$2
-  skill_name=$(basename "$source_path")
-  destination="$destination_root/$skill_name"
-
-  if [ -L "$destination" ]; then
-    if [ "$(readlink "$destination")" = "$source_path" ]; then
-      printf 'up to date: %s\n' "$destination"
-      return 0
-    fi
-    printf 'refusing to replace existing link: %s\n' "$destination" >&2
-    return 1
-  fi
-
-  if [ -e "$destination" ]; then
-    printf 'refusing to replace existing path: %s\n' "$destination" >&2
-    return 1
-  fi
-
-  if [ "$dry_run" = true ]; then
-    printf 'would link: %s -> %s\n' "$destination" "$source_path"
-    return 0
-  fi
-
-  mkdir -p "$destination_root"
-  ln -s "$source_path" "$destination"
-  printf 'linked: %s -> %s\n' "$destination" "$source_path"
-}
-
-remove_legacy_claude_link() {
-  source_path=$1
-  skill_name=$(basename "$source_path")
-  destination="$claude_dir/$skill_name"
+  destination="$destination_root/$(basename "$source_path")"
 
   [ -L "$destination" ] || return 0
   if [ "$(readlink "$destination")" != "$source_path" ]; then
@@ -91,12 +53,12 @@ remove_legacy_claude_link() {
   fi
 
   if [ "$dry_run" = true ]; then
-    printf 'would unlink legacy Claude skill: %s\n' "$destination"
+    printf 'would unlink legacy direct skill: %s\n' "$destination"
     return 0
   fi
 
   rm "$destination"
-  printf 'unlinked legacy Claude skill: %s\n' "$destination"
+  printf 'unlinked legacy direct skill: %s\n' "$destination"
 }
 
 for skill_path in "$source_dir"/*; do
@@ -106,12 +68,8 @@ for skill_path in "$source_dir"/*; do
     exit 1
   }
   found_skill=true
-  if is_codex_excluded "$(basename "$skill_path")"; then
-    printf 'skipped Codex: %s\n' "$skill_path"
-  else
-    link_skill "$skill_path" "$codex_dir"
-  fi
-  remove_legacy_claude_link "$skill_path"
+  remove_legacy_link "$skill_path" "$codex_dir"
+  remove_legacy_link "$skill_path" "$claude_dir"
 done
 
 if [ "$found_skill" = false ]; then

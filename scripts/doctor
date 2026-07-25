@@ -5,9 +5,9 @@ usage() {
   cat <<'EOF'
 Usage: scripts/doctor
 
-Report local prerequisites and whether this repository's canonical skill is
-linked into Codex and Claude. This command is diagnostic and does not change
-your machine.
+Report local prerequisites, plugin availability, generated plugin links, and
+legacy direct skill links. This command is diagnostic and does not change your
+machine.
 EOF
 }
 
@@ -28,7 +28,7 @@ script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 missing=false
 
-for dependency in git zsh chezmoi gitleaks pre-commit; do
+for dependency in git zsh chezmoi gitleaks pre-commit codex claude; do
   if command -v "$dependency" >/dev/null 2>&1; then
     printf 'found: %s\n' "$dependency"
   else
@@ -37,14 +37,43 @@ for dependency in git zsh chezmoi gitleaks pre-commit; do
   fi
 done
 
+if "$repo_root/tests/plugin-delivery.test.sh" >/dev/null 2>&1; then
+  printf '%s\n' 'plugin skill links: valid'
+else
+  printf '%s\n' 'plugin skill links: invalid'
+  missing=true
+fi
+
 for agent in codex claude; do
-  skill_link="$HOME/.$agent/skills/atium-repository-maintenance"
-  if [ -L "$skill_link" ] && [ "$(readlink "$skill_link")" = "$repo_root/skills/atium-repository-maintenance" ]; then
-    printf 'linked: %s\n' "$skill_link"
-  else
-    printf 'not linked: %s\n' "$skill_link"
-  fi
+  legacy_dir="$HOME/.$agent/skills"
+  legacy_found=false
+  for skill_path in "$repo_root/skills"/*; do
+    [ -d "$skill_path" ] || continue
+    destination="$legacy_dir/$(basename "$skill_path")"
+    if [ -L "$destination" ] && [ "$(readlink "$destination")" = "$skill_path" ]; then
+      printf 'legacy link: %s\n' "$destination"
+      legacy_found=true
+      missing=true
+    fi
+  done
+  [ "$legacy_found" = true ] || printf 'no legacy %s skill links\n' "$agent"
 done
+
+expected_version=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["version"])' "$repo_root/plugins/atium-skills/.codex-plugin/plugin.json")
+
+if command -v codex >/dev/null 2>&1 && codex plugin list 2>&1 | grep -Eq "atium-skills@personal[[:space:]]+installed, enabled[[:space:]]+$expected_version"; then
+  printf '%s\n' "Codex plugin: installed, enabled, and version $expected_version"
+else
+  printf '%s\n' "Codex plugin: not confirmed at version $expected_version"
+  missing=true
+fi
+
+if command -v claude >/dev/null 2>&1 && claude plugin details atium-claude-skills@atium-setup 2>&1 | grep -Fq "atium-claude-skills $expected_version"; then
+  printf '%s\n' "Claude plugin: installed at version $expected_version"
+else
+  printf '%s\n' "Claude plugin: not confirmed at version $expected_version"
+  missing=true
+fi
 
 private_overlay="${XDG_CONFIG_HOME:-$HOME/.config}/atium/private.zsh"
 if [ -f "$private_overlay" ]; then
@@ -54,5 +83,6 @@ else
 fi
 
 if [ "$missing" = true ]; then
-  printf '%s\n' 'Install missing dependencies with scripts/bootstrap --apply.'
+  printf '%s\n' 'Run scripts/bootstrap --apply or scripts/refresh-plugins after installing missing dependencies.'
+  exit 1
 fi

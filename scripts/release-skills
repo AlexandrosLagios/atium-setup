@@ -1,0 +1,61 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/release-skills <version>
+
+Set the shared plugin version, regenerate the portable Codex plugin links, run
+the repository and plugin checks, and print the commands to commit and refresh
+the installed plugins. This command never commits or pushes.
+EOF
+}
+
+case "${1:-}" in
+  --help|-h) usage; exit 0 ;;
+esac
+
+version=${1:-}
+case "$version" in
+  ''|*[!0-9.]*|.*|*..*|*.) usage >&2; exit 2 ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+
+python3 - "$version" \
+  "$repo_root/plugins/atium-skills/.codex-plugin/plugin.json" \
+  "$repo_root/plugins/atium-claude-skills/.claude-plugin/plugin.json" \
+  "$repo_root/.claude-plugin/marketplace.json" <<'PY'
+import json
+import pathlib
+import sys
+
+version = sys.argv[1]
+codex_path, claude_path, marketplace_path = map(pathlib.Path, sys.argv[2:])
+
+for path in (codex_path, claude_path):
+    data = json.loads(path.read_text())
+    data["version"] = version
+    path.write_text(json.dumps(data, indent=2) + "\n")
+
+marketplace = json.loads(marketplace_path.read_text())
+for plugin in marketplace["plugins"]:
+    if plugin["name"] == "atium-claude-skills":
+        plugin["version"] = version
+        break
+else:
+    raise SystemExit("atium-claude-skills is missing from the Claude marketplace")
+marketplace_path.write_text(json.dumps(marketplace, indent=2) + "\n")
+PY
+
+"$repo_root/scripts/sync-plugin-skills"
+"$repo_root/tests/run.sh"
+"$repo_root/scripts/check-secrets"
+"$repo_root/scripts/refresh-plugins" --dry-run
+
+printf '%s\n' "release checks passed for version $version"
+printf '%s\n' 'Next:'
+printf '%s\n' '  git add .agents .claude-plugin plugins scripts tests README.md global skills'
+printf '%s\n' "  git commit -m \"release: skills $version\""
+printf '%s\n' '  scripts/refresh-plugins'

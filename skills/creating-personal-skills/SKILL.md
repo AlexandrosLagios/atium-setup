@@ -18,12 +18,12 @@ Do not author a skill directly in `~/.claude/skills`, `~/.claude/plugins`, or
    tool assumptions. Keep secrets out of the repository.
 4. Classify compatibility:
    - Portable: leave it out of `skills/.codexignore` so
-     `scripts/sync-skills` links it to Codex.
+     `scripts/sync-plugin-skills` exposes it through the Codex plugin.
    - Claude-only: document the concrete runtime dependency and add its name to
      `skills/.codexignore`.
    - Claude Code loads both kinds through the `atium-claude-skills` plugin.
 5. Run `tests/run.sh`, `scripts/check-secrets`, and
-   `scripts/sync-skills --dry-run` before committing or deploying.
+   `scripts/refresh-plugins --dry-run` before committing or deploying.
 
 Never copy a skill into a platform wrapper. The source directory under
-`skills/` is the only authored copy.
+`skills/` is the only authored copy; wrappers contain only generated links.
