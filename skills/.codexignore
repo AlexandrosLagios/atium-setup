@@ -1,0 +1,8 @@
+# Keep these in the canonical repository and linked into Claude, but do not
+# install them in Codex until their Claude-only runtime assumptions are ported.
+# babysit-prs needs Claude loop scheduling and push notifications.
+babysit-prs
+# graphify dispatches Claude-specific extraction agents.
+graphify
+# steal-skills depends on Claude's read-only Explore subagent type.
+steal-skills

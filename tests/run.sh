@@ -18,6 +18,9 @@ find "$dotfiles_dir" -type f -name '*.zsh' -exec zsh -n {} \;
 if [ -x "$repo_root/tests/sync-skills.test.sh" ]; then
   "$repo_root/tests/sync-skills.test.sh"
 fi
+if [ -x "$repo_root/tests/skill-compatibility.test.sh" ]; then
+  "$repo_root/tests/skill-compatibility.test.sh"
+fi
 
 for operational_script in bootstrap doctor check-secrets sync-skills; do
   script_path="$repo_root/scripts/$operational_script"

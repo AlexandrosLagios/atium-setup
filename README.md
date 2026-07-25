@@ -53,6 +53,8 @@ for secrets or genuinely local settings only. See [the secrets guide](docs/secre
 
 - `dotfiles/`: real chezmoi source state; deployed files are not edited directly.
 - `skills/`: one authored copy of each reusable skill.
+- `skills/.codexignore`: canonical skills that remain Claude-only until their
+  runtime assumptions are ported.
 - `scripts/sync-skills`: creates agent-facing links, never skill copies.
 - `scripts/doctor`: reports missing tools and deployment status.
 

@@ -6,8 +6,8 @@ usage() {
 Usage: scripts/sync-skills [--dry-run]
 
 Create safe links from the canonical skills in this repository to Codex and
-Claude skill directories. Existing non-matching destinations are never
-replaced.
+Claude skill directories. Skills listed in skills/.codexignore only link to
+Claude. Existing non-matching destinations are never replaced.
 EOF
 }
 
@@ -40,7 +40,13 @@ fi
 source_dir=$(CDPATH= cd -- "$source_dir" && pwd)
 codex_dir="${ATIUM_CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
 claude_dir="${ATIUM_CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
+codex_exclude_file="${ATIUM_CODEX_EXCLUDE_FILE:-$source_dir/.codexignore}"
 found_skill=false
+
+is_codex_excluded() {
+  skill_name=$1
+  [ -f "$codex_exclude_file" ] && grep -F -x "$skill_name" "$codex_exclude_file" >/dev/null 2>&1
+}
 
 link_skill() {
   source_path=$1
@@ -79,7 +85,11 @@ for skill_path in "$source_dir"/*; do
     exit 1
   }
   found_skill=true
-  link_skill "$skill_path" "$codex_dir"
+  if is_codex_excluded "$(basename "$skill_path")"; then
+    printf 'skipped Codex: %s\n' "$skill_path"
+  else
+    link_skill "$skill_path" "$codex_dir"
+  fi
   link_skill "$skill_path" "$claude_dir"
 done
 
