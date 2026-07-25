@@ -1,0 +1,17 @@
+# Canonical source: atium-setup/dotfiles/dot_zshrc
+#
+# Keep this entrypoint small. Edit the modular files in
+# ~/.config/atium/zsh/ rather than editing ~/.zshrc directly.
+
+typeset -U path PATH
+
+atium_config_root="${XDG_CONFIG_HOME:-$HOME/.config}/atium"
+for atium_module in paths runtimes aliases functions prompt; do
+  atium_module_path="$atium_config_root/zsh/$atium_module.zsh"
+  [[ -r "$atium_module_path" ]] && source "$atium_module_path"
+done
+unset atium_module atium_module_path
+
+# This untracked file is for credentials and genuinely local configuration.
+[[ -r "$atium_config_root/private.zsh" ]] && source "$atium_config_root/private.zsh"
+unset atium_config_root
