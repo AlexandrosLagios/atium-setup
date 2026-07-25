@@ -18,4 +18,14 @@ find "$dotfiles_dir" -type f -name '*.zsh' -exec zsh -n {} \;
 if [ -x "$repo_root/tests/sync-skills.test.sh" ]; then
   "$repo_root/tests/sync-skills.test.sh"
 fi
+
+for operational_script in bootstrap doctor check-secrets sync-skills; do
+  script_path="$repo_root/scripts/$operational_script"
+  if [ ! -x "$script_path" ]; then
+    printf 'expected executable script: %s\n' "$script_path" >&2
+    exit 1
+  fi
+  "$script_path" --help >/dev/null
+done
+
 printf '%s\n' 'zsh syntax checks passed'

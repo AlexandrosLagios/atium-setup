@@ -1,0 +1,58 @@
+#!/bin/sh
+set -u
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/doctor
+
+Report local prerequisites and whether this repository's canonical skill is
+linked into Codex and Claude. This command is diagnostic and does not change
+your machine.
+EOF
+}
+
+case "${1:-}" in
+  "")
+    ;;
+  --help|-h)
+    usage
+    exit 0
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+missing=false
+
+for dependency in git zsh chezmoi gitleaks pre-commit; do
+  if command -v "$dependency" >/dev/null 2>&1; then
+    printf 'found: %s\n' "$dependency"
+  else
+    printf 'missing: %s\n' "$dependency"
+    missing=true
+  fi
+done
+
+for agent in codex claude; do
+  skill_link="$HOME/.$agent/skills/atium-repository-maintenance"
+  if [ -L "$skill_link" ] && [ "$(readlink "$skill_link")" = "$repo_root/skills/atium-repository-maintenance" ]; then
+    printf 'linked: %s\n' "$skill_link"
+  else
+    printf 'not linked: %s\n' "$skill_link"
+  fi
+done
+
+private_overlay="${XDG_CONFIG_HOME:-$HOME/.config}/atium/private.zsh"
+if [ -f "$private_overlay" ]; then
+  printf 'local overlay present: %s\n' "$private_overlay"
+else
+  printf 'local overlay absent: %s\n' "$private_overlay"
+fi
+
+if [ "$missing" = true ]; then
+  printf '%s\n' 'Install missing dependencies with scripts/bootstrap --apply.'
+fi

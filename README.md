@@ -19,6 +19,12 @@ The first command previews what would be installed. The second applies the
 dotfiles and installs the skills. On an existing machine, first move any
 hand-edited configuration you want to retain into this repository.
 
+To enable the commit-time secret check after the bootstrap:
+
+```sh
+pre-commit install
+```
+
 ## Daily workflow
 
 ```sh

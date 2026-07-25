@@ -1,0 +1,52 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/bootstrap [--apply]
+
+Preview deployment from this repository by default. With --apply, install the
+declared Homebrew dependencies, deploy dotfiles with chezmoi, and sync skills.
+EOF
+}
+
+apply=false
+case "${1:-}" in
+  "")
+    ;;
+  --apply)
+    apply=true
+    ;;
+  --help|-h)
+    usage
+    exit 0
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+
+if [ "$apply" = true ]; then
+  if ! command -v brew >/dev/null 2>&1; then
+    printf '%s\n' 'Homebrew is required for --apply: https://brew.sh' >&2
+    exit 1
+  fi
+  brew bundle --file "$repo_root/Brewfile"
+fi
+
+if ! command -v chezmoi >/dev/null 2>&1; then
+  printf '%s\n' 'chezmoi is not installed; run scripts/bootstrap --apply on a Homebrew machine' >&2
+  exit 1
+fi
+
+if [ "$apply" = true ]; then
+  chezmoi apply --source "$repo_root" --error-on-conflict
+  "$repo_root/scripts/sync-skills"
+else
+  chezmoi diff --source "$repo_root"
+  printf '%s\n' 'preview complete; run scripts/bootstrap --apply to deploy'
+fi
