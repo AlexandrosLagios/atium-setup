@@ -1,29 +1,23 @@
 # atium-setup
 
-The canonical, public-safe source for my dotfiles and agent skills.
+The public-safe source of truth for my dotfiles and personal agent skills.
 
-Edit files here—never the deployed copies in `$HOME`. Chezmoi deploys the
-actual dotfiles from `dotfiles/`. Both agents load skills through thin plugins
-whose generated links point back to the canonical `skills/` directories.
+Edit this repository, never deployed copies in `$HOME`. Chezmoi deploys files
+from `dotfiles/`; Codex and Claude Code load the same skills through thin
+plugins that link back to `skills/`.
 
-## Quick start
+## Set up
 
 ```sh
 git clone https://github.com/AlexandrosLagios/atium-setup.git
 cd atium-setup
-scripts/bootstrap
-scripts/bootstrap --apply
+scripts/bootstrap          # preview changes
+scripts/bootstrap --apply  # install dependencies and deploy
+pre-commit install         # optional commit-time secret check
 ```
 
-The first command previews what would be installed. The second applies the
-dotfiles and installs the skills. On an existing machine, first move any
-hand-edited configuration you want to retain into this repository.
-
-To enable the commit-time secret check after the bootstrap:
-
-```sh
-pre-commit install
-```
+Before applying on an existing machine, copy any configuration you want to
+keep into this repository.
 
 ## Daily workflow
 
@@ -31,87 +25,75 @@ pre-commit install
 # Edit the source of truth.
 $EDITOR dotfiles/dot_config/atium/zsh/aliases.zsh
 
-# Preview and then deploy it.
+# Preview, then deploy dotfiles.
 chezmoi diff --source "$(git rev-parse --show-toplevel)"
 chezmoi apply --source "$(git rev-parse --show-toplevel)"
 
-# Refresh generated plugin links and installed agent plugins.
+# After changing skills, refresh their generated plugin links.
 scripts/refresh-plugins
 
-# Verify the repository is safe to publish.
+# Before publishing changes.
 tests/run.sh
 scripts/check-secrets
 ```
 
-## Private configuration
+Run `scripts/doctor` for a read-only check of prerequisites, plugin status,
+and stale links.
 
-All tracked files in this repository should be safe to publish. Keep public-safe
-configuration here. The only supported untracked shell overlay is
-`~/.config/atium/private.zsh`, loaded after the tracked modules; reserve it for
-real secrets and private machine state. If a secret reaches Git history, revoke
-and rotate it before considering history cleanup.
+## Privacy
 
-## Personal skill guard
+Tracked files must be safe to publish. Put secrets and machine-specific shell
+state only in the untracked `~/.config/atium/private.zsh` overlay. If a secret
+is committed, revoke and rotate it before attempting history cleanup.
 
-Personal skills are authored only under `skills/`. To apply that rule from any
-repository in both Codex and Claude Code, install the linked global guidance:
+## Personal skills
+
+Author each skill once under `skills/`; do not edit generated copies in
+`~/.codex/skills`, `~/.claude/skills`, or plugin wrappers. Use
+`skills/creating-personal-skills` when creating, importing, or adapting a
+skill.
+
+Install the global policy that enforces this rule in both agents:
 
 ```sh
 scripts/install-global-guidance --dry-run
 scripts/install-global-guidance
 ```
 
-The root [AGENTS.md](AGENTS.md) is the canonical policy; [CLAUDE.md](CLAUDE.md)
-imports it without duplicating it. Use
-`skills/creating-personal-skills` whenever you create, import, or adapt a
-personal skill.
+`AGENTS.md` is the canonical policy, and `CLAUDE.md` imports it.
 
-## Layout
+### Plugin delivery
 
-- `dotfiles/`: real chezmoi source state; deployed files are not edited directly.
-- `skills/`: one authored copy of each reusable skill.
-- `skills/.codexignore`: canonical skills that remain Claude-only until their
-  runtime assumptions are ported.
-- `scripts/sync-plugin-skills`: generates portable Codex plugin links.
-- `scripts/sync-skills`: removes legacy direct skill links from both agents.
-- `scripts/refresh-plugins`: validates and refreshes local plugin deployment.
-- `scripts/doctor`: reports missing tools, plugin status, and stale links.
-
-## Codex plugin
-
-The `atium-skills` plugin is a thin wrapper: it contains generated symlinks to
-portable canonical skills, so it never contains a second authored copy.
+Codex receives portable skills through `atium-skills`; Claude Code receives
+all skills through `atium-claude-skills`. Both are thin wrappers that link to
+the canonical `skills/` directories. `skills/.codexignore` lists skills that
+remain Claude-only because of runtime requirements.
 
 ```sh
+# Codex
 codex plugin marketplace add "$(git rev-parse --show-toplevel)"
 codex plugin add atium-skills@personal
-```
 
-Use `scripts/refresh-plugins` after changing skills. It keeps the generated
-portable inventory in sync and confirms the plugin is installed.
-
-## Claude Code plugin
-
-This repository is also a Claude Code marketplace. Its plugin is a thin wrapper
-whose `skills/` directory links to the same canonical `skills/` directory:
-
-```sh
+# Claude Code
 claude plugin marketplace add "$(git rev-parse --show-toplevel)"
 claude plugin install atium-claude-skills@atium-setup
 ```
 
-Claude Code copies the plugin into its cache on installation. Reinstall it after
-changing plugin or skill content. `scripts/sync-skills` deliberately removes
-legacy `~/.claude/skills` links so the plugin is the sole Claude entrypoint.
+Run `scripts/refresh-plugins` after changing a skill. Claude Code caches
+plugin content, so reinstall or update its plugin after changing skills.
 
-## Releasing skill changes
-
-Use an explicit version when skills or plugin metadata are ready to publish:
+## Release skill changes
 
 ```sh
 scripts/release-skills 0.2.0
 ```
 
-It synchronizes generated plugin links, updates both plugin versions, runs the
-test and secret checks, and prints the commit and refresh commands. It never
-commits or pushes for you.
+This synchronizes generated links, updates both plugin versions, runs checks,
+and prints the next commands. It does not commit or push.
+
+## Repository layout
+
+- `dotfiles/` — chezmoi source files.
+- `skills/` — canonical authored skills.
+- `scripts/` — setup, validation, and plugin-delivery commands.
+- `tests/` — repository and plugin checks.
