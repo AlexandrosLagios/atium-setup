@@ -21,8 +21,14 @@ fi
 if [ -x "$repo_root/tests/skill-compatibility.test.sh" ]; then
   "$repo_root/tests/skill-compatibility.test.sh"
 fi
+if [ -x "$repo_root/tests/global-guidance.test.sh" ]; then
+  "$repo_root/tests/global-guidance.test.sh"
+fi
+if [ -x "$repo_root/tests/personal-skills-guard.test.sh" ]; then
+  "$repo_root/tests/personal-skills-guard.test.sh"
+fi
 
-for operational_script in bootstrap doctor check-secrets sync-skills; do
+for operational_script in bootstrap check-secrets doctor install-global-guidance sync-skills; do
   script_path="$repo_root/scripts/$operational_script"
   if [ ! -x "$script_path" ]; then
     printf 'expected executable script: %s\n' "$script_path" >&2

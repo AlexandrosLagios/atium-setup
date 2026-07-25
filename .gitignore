@@ -7,3 +7,4 @@ private.zsh
 *.p12
 .gitleaks-report.*
 coverage/
+docs/superpowers/

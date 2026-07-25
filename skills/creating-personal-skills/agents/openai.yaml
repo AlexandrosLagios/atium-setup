@@ -1,0 +1,4 @@
+interface:
+  display_name: "Creating Personal Skills"
+  short_description: "Create skills once for Codex and Claude."
+  default_prompt: "Create a portable personal skill in my atium-setup repository."

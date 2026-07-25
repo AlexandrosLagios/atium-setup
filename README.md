@@ -49,6 +49,21 @@ The only supported untracked shell overlay is
 `~/.config/atium/private.zsh`. It is loaded after the tracked modules and is
 for secrets or genuinely local settings only. See [the secrets guide](docs/secrets.md).
 
+## Personal skill guard
+
+Personal skills are authored only under `skills/`. To apply that rule from any
+repository in both Codex and Claude Code, install the linked global guidance:
+
+```sh
+scripts/install-global-guidance --dry-run
+scripts/install-global-guidance
+```
+
+The root [AGENTS.md](AGENTS.md) is the canonical policy; [CLAUDE.md](CLAUDE.md)
+imports it without duplicating it. Use
+`skills/creating-personal-skills` whenever you create, import, or adapt a
+personal skill.
+
 ## Layout
 
 - `dotfiles/`: real chezmoi source state; deployed files are not edited directly.

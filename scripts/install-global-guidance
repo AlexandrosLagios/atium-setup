@@ -1,0 +1,136 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/install-global-guidance [--dry-run]
+
+Link the canonical personal-skills guidance into Codex and Claude user-level
+instruction locations. An existing Claude instruction file is preserved and
+receives a single import. Non-matching paths are never replaced.
+EOF
+}
+
+dry_run=false
+case "${1:-}" in
+  "")
+    ;;
+  --dry-run)
+    dry_run=true
+    ;;
+  --help|-h)
+    usage
+    exit 0
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+source_path="$repo_root/global/personal-skills-guidance.md"
+
+if [ ! -f "$source_path" ]; then
+  printf 'canonical guidance does not exist: %s\n' "$source_path" >&2
+  exit 1
+fi
+
+codex_home="${ATIUM_CODEX_HOME:-$HOME/.codex}"
+claude_home="${ATIUM_CLAUDE_HOME:-$HOME/.claude}"
+codex_destination="$codex_home/AGENTS.md"
+claude_destination="$claude_home/CLAUDE.md"
+claude_guidance_destination="$claude_home/personal-skills-guidance.md"
+
+if [ "$claude_home" = "$HOME/.claude" ]; then
+  claude_import='@~/.claude/personal-skills-guidance.md'
+else
+  claude_import="@$claude_guidance_destination"
+fi
+
+is_matching_link() {
+  [ -L "$1" ] && [ "$(readlink "$1")" = "$source_path" ]
+}
+
+preflight_link() {
+  destination=$1
+  if [ -L "$destination" ] && ! is_matching_link "$destination"; then
+    printf 'refusing to replace existing link: %s\n' "$destination" >&2
+    return 1
+  fi
+  if [ -e "$destination" ] && [ ! -L "$destination" ]; then
+    printf 'refusing to replace existing path: %s\n' "$destination" >&2
+    return 1
+  fi
+}
+
+preflight_codex() {
+  if [ -L "$codex_destination" ]; then
+    is_matching_link "$codex_destination" || {
+      printf 'refusing to replace existing link: %s\n' "$codex_destination" >&2
+      return 1
+    }
+    return 0
+  fi
+  if [ -e "$codex_destination" ] && { [ ! -f "$codex_destination" ] || [ -s "$codex_destination" ]; }; then
+    printf 'refusing to replace existing path: %s\n' "$codex_destination" >&2
+    return 1
+  fi
+}
+
+preflight_claude() {
+  if [ -L "$claude_destination" ]; then
+    is_matching_link "$claude_destination" || {
+      printf 'refusing to replace existing link: %s\n' "$claude_destination" >&2
+      return 1
+    }
+  elif [ -e "$claude_destination" ] && [ ! -f "$claude_destination" ]; then
+    printf 'refusing to replace existing path: %s\n' "$claude_destination" >&2
+    return 1
+  elif [ -f "$claude_destination" ]; then
+    preflight_link "$claude_guidance_destination"
+  fi
+}
+
+install_link() {
+  destination=$1
+  if is_matching_link "$destination"; then
+    printf 'up to date: %s\n' "$destination"
+    return 0
+  fi
+  if [ "$dry_run" = true ]; then
+    printf 'would link: %s -> %s\n' "$destination" "$source_path"
+    return 0
+  fi
+  mkdir -p "$(dirname "$destination")"
+  ln -s "$source_path" "$destination"
+  printf 'linked: %s -> %s\n' "$destination" "$source_path"
+}
+
+preflight_codex
+preflight_claude
+
+if [ -f "$codex_destination" ]; then
+  if [ "$dry_run" = true ]; then
+    printf 'would replace empty file: %s\n' "$codex_destination"
+  else
+    rm "$codex_destination"
+    printf 'replaced empty file: %s\n' "$codex_destination"
+  fi
+fi
+install_link "$codex_destination"
+
+if [ -f "$claude_destination" ]; then
+  install_link "$claude_guidance_destination"
+  if grep -Fxq "$claude_import" "$claude_destination"; then
+    printf 'up to date: %s\n' "$claude_destination"
+  elif [ "$dry_run" = true ]; then
+    printf 'would import guidance from: %s\n' "$claude_destination"
+  else
+    printf '\n%s\n' "$claude_import" >> "$claude_destination"
+    printf 'imported guidance from: %s\n' "$claude_destination"
+  fi
+else
+  install_link "$claude_destination"
+fi
