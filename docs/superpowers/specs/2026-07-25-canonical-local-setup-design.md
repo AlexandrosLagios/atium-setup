@@ -45,15 +45,15 @@ atium-setup/
 │   ├── bootstrap
 │   ├── doctor
 │   └── sync-skills
-└── private.example/
-    └── private.zsh
+└── docs/
+    └── secrets.md
 ```
 
-`dotfiles/` is the chezmoi source root. Files under `dotfiles/home` deploy to
-the home directory, and files under `dotfiles/config` deploy to
-`~/.config/atium`. The deployed `~/.zshrc` stays deliberately small: it loads
-the modular configuration from `~/.config/atium/zsh` and, if present, a local
-ignored private overlay.
+`dotfiles/` is the chezmoi source root and contains the real, active
+configuration. Files under `dotfiles/home` deploy to the home directory, and
+files under `dotfiles/config` deploy to `~/.config/atium`. The deployed
+`~/.zshrc` stays deliberately small: it loads the real modular configuration
+from `~/.config/atium/zsh` and, if present, a local ignored private overlay.
 
 ## Skills and Plugin Deployment
 
@@ -69,11 +69,12 @@ making the installed skills actively usable.
 
 ## Secrets and Local Overrides
 
-`private.example/private.zsh` documents the supported local override shape.
 Users create `~/.config/atium/private.zsh` themselves and source credentials
 from a password manager or local environment. The repository ignores actual
-private overlays and `.env` files. Existing plaintext credentials are not
-migrated; they must be rotated and replaced outside the repository.
+private overlays and `.env` files; `docs/secrets.md` documents the environment
+variable names and setup process without creating a second configuration file.
+Existing plaintext credentials are not migrated; they must be rotated and
+replaced outside the repository.
 
 ## User Workflow
 
