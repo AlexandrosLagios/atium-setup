@@ -6,8 +6,8 @@ description: Use when creating, importing, or adapting a personal Claude or Code
 # Creating personal skills
 
 Create every personal skill in `skills/<kebab-case-name>/` in this repository.
-Do not author a skill directly in `~/.claude/skills` or `~/.codex/skills`:
-those paths are deployed links.
+Do not author a skill directly in `~/.claude/skills`, `~/.claude/plugins`, or
+`~/.codex/skills`: those paths are generated deployment state.
 
 ## Workflow
 
@@ -18,9 +18,10 @@ those paths are deployed links.
    tool assumptions. Keep secrets out of the repository.
 4. Classify compatibility:
    - Portable: leave it out of `skills/.codexignore` so
-     `scripts/sync-skills` links it to both Codex and Claude.
+     `scripts/sync-skills` links it to Codex.
    - Claude-only: document the concrete runtime dependency and add its name to
      `skills/.codexignore`.
+   - Claude Code loads both kinds through the `atium-claude-skills` plugin.
 5. Run `tests/run.sh`, `scripts/check-secrets`, and
    `scripts/sync-skills --dry-run` before committing or deploying.
 

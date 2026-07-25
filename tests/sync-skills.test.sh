@@ -30,12 +30,16 @@ run_sync --dry-run
 
 run_sync
 [ -L "$codex_dir/example-skill" ]
-[ -L "$claude_dir/example-skill" ]
 [ "$(readlink "$codex_dir/example-skill")" = "$source_dir/example-skill" ]
-[ "$(readlink "$claude_dir/example-skill")" = "$source_dir/example-skill" ]
 [ ! -e "$codex_dir/claude-only-skill" ]
-[ -L "$claude_dir/claude-only-skill" ]
-[ "$(readlink "$claude_dir/claude-only-skill")" = "$source_dir/claude-only-skill" ]
+[ ! -e "$claude_dir/claude-only-skill" ]
+
+mkdir -p "$claude_dir"
+ln -s "$source_dir/example-skill" "$claude_dir/example-skill"
+run_sync --dry-run
+[ -L "$claude_dir/example-skill" ]
+run_sync
+[ ! -e "$claude_dir/example-skill" ]
 
 mkdir -p "$source_dir/conflicting-skill" "$codex_dir"
 printf '%s\n' '# Conflicting skill' > "$source_dir/conflicting-skill/SKILL.md"

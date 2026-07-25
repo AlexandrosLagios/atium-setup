@@ -5,9 +5,11 @@ usage() {
   cat <<'EOF'
 Usage: scripts/sync-skills [--dry-run]
 
-Create safe links from the canonical skills in this repository to Codex and
-Claude skill directories. Skills listed in skills/.codexignore only link to
-Claude. Existing non-matching destinations are never replaced.
+Create safe links from the canonical skills in this repository to Codex. Skills
+listed in skills/.codexignore are skipped. Claude Code loads the canonical
+skills through the atium-claude-skills plugin; old matching Claude skill links
+are removed to prevent duplicate discovery. Existing non-matching destinations
+are never replaced.
 EOF
 }
 
@@ -78,6 +80,25 @@ link_skill() {
   printf 'linked: %s -> %s\n' "$destination" "$source_path"
 }
 
+remove_legacy_claude_link() {
+  source_path=$1
+  skill_name=$(basename "$source_path")
+  destination="$claude_dir/$skill_name"
+
+  [ -L "$destination" ] || return 0
+  if [ "$(readlink "$destination")" != "$source_path" ]; then
+    return 0
+  fi
+
+  if [ "$dry_run" = true ]; then
+    printf 'would unlink legacy Claude skill: %s\n' "$destination"
+    return 0
+  fi
+
+  rm "$destination"
+  printf 'unlinked legacy Claude skill: %s\n' "$destination"
+}
+
 for skill_path in "$source_dir"/*; do
   [ -d "$skill_path" ] || continue
   [ -f "$skill_path/SKILL.md" ] || {
@@ -90,7 +111,7 @@ for skill_path in "$source_dir"/*; do
   else
     link_skill "$skill_path" "$codex_dir"
   fi
-  link_skill "$skill_path" "$claude_dir"
+  remove_legacy_claude_link "$skill_path"
 done
 
 if [ "$found_skill" = false ]; then

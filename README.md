@@ -3,8 +3,8 @@
 The canonical, public-safe source for my dotfiles and agent skills.
 
 Edit files here—never the deployed copies in `$HOME`. Chezmoi deploys the
-actual dotfiles from `dotfiles/`, and `scripts/sync-skills` links the
-canonical skills into Codex and Claude without copying them.
+actual dotfiles from `dotfiles/`. `scripts/sync-skills` links portable skills
+into Codex; Claude Code loads the same source through this repository's plugin.
 
 ## Quick start
 
@@ -35,7 +35,7 @@ $EDITOR dotfiles/dot_config/atium/zsh/aliases.zsh
 chezmoi diff --source "$(git rev-parse --show-toplevel)"
 chezmoi apply --source "$(git rev-parse --show-toplevel)"
 
-# Make canonical skills available to both agents.
+# Sync portable skills into Codex and remove legacy Claude links.
 scripts/sync-skills
 
 # Verify the repository is safe to publish.
@@ -72,7 +72,8 @@ personal skill.
 - `skills/`: one authored copy of each reusable skill.
 - `skills/.codexignore`: canonical skills that remain Claude-only until their
   runtime assumptions are ported.
-- `scripts/sync-skills`: creates agent-facing links, never skill copies.
+- `scripts/sync-skills`: creates Codex links and removes its legacy Claude
+  links; Claude Code uses the plugin below.
 - `scripts/doctor`: reports missing tools and deployment status.
 
 ## Codex plugin
@@ -89,3 +90,17 @@ codex plugin add atium-skills@personal
 After changing plugin metadata, increment its version and reinstall the plugin
 to refresh Codex's generated cache. Regular skill-content changes are available
 immediately through `scripts/sync-skills`.
+
+## Claude Code plugin
+
+This repository is also a Claude Code marketplace. Its plugin is a thin wrapper
+whose `skills/` directory links to the same canonical `skills/` directory:
+
+```sh
+claude plugin marketplace add "$(git rev-parse --show-toplevel)"
+claude plugin install atium-claude-skills@atium-setup
+```
+
+Claude Code copies the plugin into its cache on installation. Reinstall it after
+changing plugin or skill content. `scripts/sync-skills` deliberately removes
+legacy `~/.claude/skills` links so the plugin is the sole Claude entrypoint.
