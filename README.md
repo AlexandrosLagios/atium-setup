@@ -9,7 +9,7 @@ canonical skills into Codex and Claude without copying them.
 ## Quick start
 
 ```sh
-git clone https://github.com/<your-user>/atium-setup.git
+git clone https://github.com/AlexandrosLagios/atium-setup.git
 cd atium-setup
 scripts/bootstrap
 scripts/bootstrap --apply
@@ -55,3 +55,18 @@ for secrets or genuinely local settings only. See [the secrets guide](docs/secre
 - `skills/`: one authored copy of each reusable skill.
 - `scripts/sync-skills`: creates agent-facing links, never skill copies.
 - `scripts/doctor`: reports missing tools and deployment status.
+
+## Codex plugin
+
+The `atium-skills` plugin is a thin wrapper: its `skills/` directory is a
+link to this repository's canonical `skills/` directory, so it has no second
+authored copy.
+
+```sh
+codex plugin marketplace add "$(git rev-parse --show-toplevel)"
+codex plugin add atium-skills@personal
+```
+
+After changing plugin metadata, increment its version and reinstall the plugin
+to refresh Codex's generated cache. Regular skill-content changes are available
+immediately through `scripts/sync-skills`.
