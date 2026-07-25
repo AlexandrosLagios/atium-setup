@@ -1,0 +1,89 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/sync-skills [--dry-run]
+
+Create safe links from the canonical skills in this repository to Codex and
+Claude skill directories. Existing non-matching destinations are never
+replaced.
+EOF
+}
+
+dry_run=false
+case "${1:-}" in
+  "")
+    ;;
+  --dry-run)
+    dry_run=true
+    ;;
+  --help|-h)
+    usage
+    exit 0
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+source_dir="${ATIUM_SKILLS_SOURCE_DIR:-$repo_root/skills}"
+
+if [ ! -d "$source_dir" ]; then
+  printf 'canonical skills directory does not exist: %s\n' "$source_dir" >&2
+  exit 1
+fi
+
+source_dir=$(CDPATH= cd -- "$source_dir" && pwd)
+codex_dir="${ATIUM_CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
+claude_dir="${ATIUM_CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
+found_skill=false
+
+link_skill() {
+  source_path=$1
+  destination_root=$2
+  skill_name=$(basename "$source_path")
+  destination="$destination_root/$skill_name"
+
+  if [ -L "$destination" ]; then
+    if [ "$(readlink "$destination")" = "$source_path" ]; then
+      printf 'up to date: %s\n' "$destination"
+      return 0
+    fi
+    printf 'refusing to replace existing link: %s\n' "$destination" >&2
+    return 1
+  fi
+
+  if [ -e "$destination" ]; then
+    printf 'refusing to replace existing path: %s\n' "$destination" >&2
+    return 1
+  fi
+
+  if [ "$dry_run" = true ]; then
+    printf 'would link: %s -> %s\n' "$destination" "$source_path"
+    return 0
+  fi
+
+  mkdir -p "$destination_root"
+  ln -s "$source_path" "$destination"
+  printf 'linked: %s -> %s\n' "$destination" "$source_path"
+}
+
+for skill_path in "$source_dir"/*; do
+  [ -d "$skill_path" ] || continue
+  [ -f "$skill_path/SKILL.md" ] || {
+    printf 'missing SKILL.md: %s\n' "$skill_path" >&2
+    exit 1
+  }
+  found_skill=true
+  link_skill "$skill_path" "$codex_dir"
+  link_skill "$skill_path" "$claude_dir"
+done
+
+if [ "$found_skill" = false ]; then
+  printf 'no canonical skills found in: %s\n' "$source_dir" >&2
+  exit 1
+fi

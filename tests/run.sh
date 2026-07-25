@@ -15,4 +15,7 @@ if [ ! -d "$dotfiles_dir" ] || ! find "$dotfiles_dir" -type f -name '*.zsh' -pri
 fi
 
 find "$dotfiles_dir" -type f -name '*.zsh' -exec zsh -n {} \;
+if [ -x "$repo_root/tests/sync-skills.test.sh" ]; then
+  "$repo_root/tests/sync-skills.test.sh"
+fi
 printf '%s\n' 'zsh syntax checks passed'

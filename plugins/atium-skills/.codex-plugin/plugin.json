@@ -1,0 +1,18 @@
+{
+  "name": "atium-skills",
+  "version": "0.1.0",
+  "description": "Canonical, public-safe local setup skills.",
+  "author": {
+    "name": "Atium Setup"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Atium Skills",
+    "shortDescription": "Canonical skills for local setup maintenance.",
+    "longDescription": "Reusable skills maintained in the Atium setup repository.",
+    "developerName": "Atium Setup",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Help me maintain my canonical local setup."
+  }
+}
