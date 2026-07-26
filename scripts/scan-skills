@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""Scan agent skill trees for supply-chain and prompt-injection patterns.
+
+Runs entirely offline: skills describe private repositories, so the default scan
+never sends their text anywhere. Pass --snyk to additionally run Snyk's hosted
+scanner, which uploads discovered skill content to its verification server.
+"""
+
+import argparse
+import pathlib
+import re
+import subprocess
+import sys
+import unicodedata
+
+CRITICAL = "critical"
+HIGH = "high"
+MEDIUM = "medium"
+
+# (severity, code, label, compiled pattern). Kept as source patterns rather than
+# a cleverer engine because a reviewer has to be able to read why a skill failed.
+RULES = [
+    (CRITICAL, "X001", "pipes a download straight into a shell",
+     r"(?:curl|wget)[^\n|]*\|\s*(?:sudo\s+)?(?:ba|z|d|k)?sh"),
+    (CRITICAL, "X002", "evaluates a remote response",
+     r"eval\s+[\"'`]?\$\((?:curl|wget)"),
+    (CRITICAL, "X003", "decodes an encoded payload before running it",
+     r"base64\s+(?:-{1,2}d\w*|--decode)[^\n]*\|\s*(?:ba|z)?sh|openssl\s+enc\s+-d[^\n]*\|\s*(?:ba|z)?sh"),
+    (CRITICAL, "S001", "reads private keys or cloud credentials",
+     r"\.ssh/id_[a-z0-9_]+|\.aws/credentials|\.netrc|security\s+find-generic-password|gcloud\s+auth\s+print-access-token"),
+    (HIGH, "S002", "reads an environment or credential file",
+     r"(?:cat|source|\.|read)\s+[^\n]*(?:\.env(?:\.[a-z]+)?|credentials\.json|service-account[^\n]*\.json)\b"),
+    (HIGH, "I001", "instructs the agent to hide activity from the user",
+     r"(?:do\s+not|don't|never)\s+(?:tell|mention|inform|show|reveal)[^.\n]{0,40}(?:the\s+)?user|without\s+(?:telling|informing|notifying)\s+the\s+user"),
+    (HIGH, "I002", "tries to override prior instructions",
+     r"ignore\s+(?:all\s+)?(?:previous|prior|above|earlier)\s+(?:instructions|rules|prompts)|disregard\s+(?:your|the)\s+(?:system\s+)?(?:prompt|instructions)"),
+    (HIGH, "I003", "claims authority to bypass confirmation",
+     r"(?:pre-?authorized|already\s+approved)\s+by\s+the\s+user|no\s+need\s+to\s+ask\s+(?:for\s+)?(?:permission|confirmation)"),
+    (HIGH, "P001", "escalates privileges or loosens permissions",
+     r"\bsudo\s+(?!-n\s+true\b)|chmod\s+(?:-R\s+)?777\b|launchctl\s+(?:load|bootstrap)\b|crontab\s+-"),
+    (HIGH, "P002", "deletes broad paths",
+     r"rm\s+-[a-z]*[rf][a-z]*\s+(?:~|/|\$HOME|\"\$HOME\")(?:\s|/[*\"']|$)"),
+    (MEDIUM, "N001", "posts data to a hard-coded remote endpoint",
+     r"(?:curl|wget|fetch)\s*\(?[^\n]*(?:-X\s*POST|--data|method:\s*[\"']POST)"),
+]
+
+# Hosts a skill may reference. Everything else is reported so a new destination
+# is a deliberate decision rather than a silent one.
+ALLOWED_HOSTS = {
+    "github.com", "raw.githubusercontent.com", "gist.github.com",
+    "docs.anthropic.com", "platform.claude.com", "code.claude.com", "claude.com",
+    "developer.mozilla.org", "nodejs.org", "www.npmjs.com", "npmjs.com",
+    "developers.cloudflare.com", "www.mongodb.com", "mongodb.com",
+    "nx.dev", "skills.sh", "www.skills.sh", "docs.github.com",
+    "opensource.org", "semver.org", "keepachangelog.com", "www.conventionalcommits.org",
+    "en.wikipedia.org", "developer.chrome.com", "playwright.dev", "example.com",
+    "api.cloudflare.com", "localhost", "127.0.0.1",
+    "www.w3.org", "cli.github.com", "webaim.org",
+}
+URL_PATTERN = re.compile(r"https?://([A-Za-z0-9.-]+)")
+ALLOW_PATTERN = re.compile(r"scan-skills:\s*allow\s+([A-Z]\d{3})")
+
+# Zero-width and bidirectional-override characters hide text from a human reader
+# while the model still sees it.
+INVISIBLE = {
+    "​", "‌", "‍", "⁠", "﻿",
+    "‪", "‫", "‬", "‭", "‮",
+    "⁦", "⁧", "⁨", "⁩", "­",
+}
+
+SEVERITY_RANK = {CRITICAL: 0, HIGH: 1, MEDIUM: 2}
+TEXT_SUFFIXES = {".md", ".sh", ".bash", ".zsh", ".py", ".js", ".ts", ".rb", ".json", ".yaml", ".yml", ".toml", ".txt", ".sql"}
+
+
+def scan_file(path):
+    findings = []
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError) as error:
+        return [(MEDIUM, "F001", f"unreadable file ({error.__class__.__name__})", path, 0, "")]
+
+    lines = text.splitlines()
+    for number, line in enumerate(lines, start=1):
+        # A deliberate pattern is annotated on the line, or within the three lines
+        # above it so the annotation can sit outside a fenced code block:
+        #   <!-- scan-skills: allow S001 the keychain entry is the token source -->
+        allowed = set()
+        for context in lines[max(0, number - 4):number]:
+            allowed |= set(ALLOW_PATTERN.findall(context))
+        for severity, code, label, pattern in RULES:
+            if code in allowed:
+                continue
+            match = re.search(pattern, line, re.IGNORECASE)
+            if match:
+                findings.append((severity, code, label, path, number, match.group(0)[:90]))
+        for host in sorted({found.lower() for found in URL_PATTERN.findall(line)}):
+            if "N002" in allowed:
+                continue
+            if host not in ALLOWED_HOSTS:
+                findings.append((MEDIUM, "N002", f"references unlisted host {host}", path, number, line.strip()[:90]))
+        hidden = [] if "U001" in allowed else [character for character in line if character in INVISIBLE]
+        if hidden:
+            names = ", ".join(sorted({unicodedata.name(character, repr(character)) for character in hidden}))
+            findings.append((HIGH, "U001", f"contains invisible characters ({names})", path, number, ""))
+    return findings
+
+
+def scan_tree(root):
+    findings = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or path.is_symlink():
+            continue
+        if any(part in {".git", "node_modules", "graphify-out"} for part in path.parts):
+            continue
+        if path.suffix.lower() in TEXT_SUFFIXES:
+            findings.extend(scan_file(path))
+    return findings
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("paths", nargs="*", type=pathlib.Path,
+                        help="skill trees to scan (default: this repository's skills/ and routines/)")
+    parser.add_argument("--snyk", action="store_true",
+                        help="also run Snyk's hosted scanner, which uploads discovered skill content")
+    parser.add_argument("--fail-on", choices=[CRITICAL, HIGH, MEDIUM], default=HIGH,
+                        help="lowest severity that exits non-zero (default: high)")
+    arguments = parser.parse_args()
+
+    repo_root = pathlib.Path(__file__).resolve().parent.parent
+    targets = arguments.paths or [repo_root / "skills", repo_root / "routines"]
+
+    findings = []
+    for target in targets:
+        if not target.exists():
+            print(f"missing target: {target}", file=sys.stderr)
+            return 2
+        findings.extend(scan_tree(target.resolve()))
+
+    findings.sort(key=lambda finding: (SEVERITY_RANK[finding[0]], str(finding[3]), finding[4]))
+    for severity, code, label, path, number, excerpt in findings:
+        location = f"{path}:{number}" if number else str(path)
+        suffix = f" — {excerpt}" if excerpt else ""
+        print(f"{location}: {severity} {code}: {label}{suffix}")
+
+    threshold = SEVERITY_RANK[arguments.fail_on]
+    blocking = [finding for finding in findings if SEVERITY_RANK[finding[0]] <= threshold]
+    print(f"scanned {len(targets)} tree(s): {len(findings)} finding(s), {len(blocking)} at or above {arguments.fail_on}")
+
+    if arguments.snyk:
+        print("running Snyk agent scan; discovered skill content is uploaded to its verification server")
+        subprocess.run(["uvx", "snyk-agent-scan@latest", "--skills", "--no-bootstrap"], check=False)
+
+    return 1 if blocking else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

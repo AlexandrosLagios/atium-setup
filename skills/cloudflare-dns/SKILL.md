@@ -19,6 +19,7 @@ One Keychain item per Cloudflare account, service `cloudflare-dns-token`, accoun
 
 Read it inside the same command that uses it. Each Bash call is a fresh shell, so a token exported in an earlier call is already gone. Chain "read token, resolve zone, act" as one command:
 
+<!-- scan-skills: allow S001 N001 the keychain entry is this skill's documented token source -->
 ```bash
 TOKEN=$(security find-generic-password -s cloudflare-dns-token -a vlp -w) && ZONE=$(curl -s -H "Authorization: Bearer $TOKEN" "https://api.cloudflare.com/client/v4/zones?name=vlp.gr" | jq -r '.result[0].id') && curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE/dns_records" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"type":"TXT","name":"send","content":"v=spf1 include:amazonses.com ~all","ttl":1}' | jq '{success, errors: [.errors[]?.message]}'
 ```
