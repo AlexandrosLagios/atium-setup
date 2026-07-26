@@ -47,8 +47,10 @@ fi
 if [ "$apply" = true ]; then
   chezmoi apply --source "$repo_root" --error-on-conflict
   "$repo_root/scripts/refresh-plugins"
+  "$repo_root/scripts/install-third-party"
 else
   chezmoi diff --source "$repo_root"
   "$repo_root/scripts/refresh-plugins" --dry-run
+  "$repo_root/scripts/install-third-party" --dry-run
   printf '%s\n' 'preview complete; run scripts/bootstrap --apply to deploy'
 fi
