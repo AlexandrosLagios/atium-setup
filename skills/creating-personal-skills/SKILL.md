@@ -25,5 +25,15 @@ Do not author a skill directly in `~/.claude/skills`, `~/.claude/plugins`, or
 5. Run `tests/run.sh`, `scripts/check-secrets`, and
    `scripts/refresh-plugins --dry-run` before committing or deploying.
 
+## Editing a description is a behaviour change
+
+A skill only runs when its description triggers, so an edit there can silently
+stop it firing. `tests/skill-descriptions.test.sh` locks the mechanical
+properties (name matches the directory, single-line description, length bounds,
+no duplicates) and lists skills whose description says what they do but never
+when to use them. It cannot tell you whether the new wording actually triggers:
+for that, run `skill-creator`'s eval against representative prompts before and
+after the edit, and compare.
+
 Never copy a skill into a platform wrapper. The source directory under
 `skills/` is the only authored copy; wrappers contain only generated links.

@@ -75,6 +75,13 @@ else
   missing=true
 fi
 
+if "$repo_root/scripts/install-third-party" --check >/dev/null 2>&1; then
+  printf '%s\n' 'third-party skills: all declared skills installed'
+else
+  "$repo_root/scripts/install-third-party" --check 2>&1 | grep '^missing:' || true
+  missing=true
+fi
+
 private_overlay="${XDG_CONFIG_HOME:-$HOME/.config}/atium/private.zsh"
 if [ -f "$private_overlay" ]; then
   printf 'local overlay present: %s\n' "$private_overlay"

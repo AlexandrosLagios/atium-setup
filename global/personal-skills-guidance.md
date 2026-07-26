@@ -12,6 +12,9 @@ This repository is the only authored source for personal agent skills.
   exposes portable skills through the Codex plugin; Claude Code loads all
   personal skills through the `atium-claude-skills` plugin. A skill with a
   documented Claude-only runtime requirement belongs in `skills/.codexignore`.
+- Skills from other people's repositories are deployment state too. Declare them
+  in `third-party-skills.tsv` and install with `scripts/install-third-party`;
+  never copy their content into `skills/`. Audit one before you trust it.
 - Before committing, run `tests/run.sh`, `scripts/check-secrets`, and
   `scripts/refresh-plugins --dry-run`.
 

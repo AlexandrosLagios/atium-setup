@@ -1,0 +1,84 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/install-third-party [--dry-run] [--check]
+
+Install the third-party agent skills declared in third-party-skills.tsv into the
+user-level Claude Code and Codex skill directories.
+
+Third-party skills are deployment state, not authored content: this repository
+declares which ones a machine should have, the way Brewfile declares packages.
+With --check, report which declared skills are missing without installing.
+EOF
+}
+
+dry_run=false
+check_only=false
+case "${1:-}" in
+  "") ;;
+  --dry-run) dry_run=true ;;
+  --check) check_only=true ;;
+  --help|-h) usage; exit 0 ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+manifest="$repo_root/third-party-skills.tsv"
+# The CLI takes one flag per agent and per skill; comma-separated lists are rejected.
+agent_flags='--agent claude-code --agent codex'
+
+[ -f "$manifest" ] || {
+  printf 'missing manifest: %s\n' "$manifest" >&2
+  exit 1
+}
+
+if ! command -v npx >/dev/null 2>&1; then
+  printf '%s\n' 'npx not found; install Node (Brewfile ships nvm) and retry' >&2
+  exit 1
+fi
+
+installed_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"
+missing=0
+
+# Each row is repo<TAB>comma-separated skills<TAB>note. The note is for humans.
+while IFS='	' read -r repo skill_list _note; do
+  case "$repo" in ''|repo|\#*) continue ;; esac
+  [ -n "${skill_list:-}" ] || {
+    printf 'missing skill list for %s\n' "$repo" >&2
+    exit 1
+  }
+
+  if [ "$check_only" = true ]; then
+    for skill in $(printf '%s\n' "$skill_list" | tr ',' ' '); do
+      if [ -e "$installed_dir/$skill" ]; then
+        printf 'installed: %s (%s)\n' "$skill" "$repo"
+      else
+        printf 'missing: %s (%s)\n' "$skill" "$repo"
+        missing=$((missing + 1))
+      fi
+    done
+    continue
+  fi
+
+  if [ "$dry_run" = true ]; then
+    printf 'would install: %s from %s\n' "$skill_list" "$repo"
+    continue
+  fi
+
+  printf 'installing: %s from %s\n' "$skill_list" "$repo"
+  skill_flags=''
+  for skill in $(printf '%s\n' "$skill_list" | tr ',' ' '); do
+    skill_flags="$skill_flags --skill $skill"
+  done
+  # shellcheck disable=SC2086 # both flag lists are deliberately word-split
+  # stdin comes from the manifest, so keep the installer from eating the rest of it.
+  npx -y skills@latest add "$repo" --global $agent_flags $skill_flags --yes </dev/null
+done <"$manifest"
+
+if [ "$check_only" = true ] && [ "$missing" -gt 0 ]; then
+  printf '%s third-party skill(s) missing; run scripts/install-third-party\n' "$missing"
+  exit 1
+fi

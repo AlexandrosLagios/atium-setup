@@ -1,0 +1,84 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/install-routines [--dry-run]
+
+Link the canonical routines directory into the Claude Code scheduled-tasks
+directory. Only creates symlinks and never replaces an existing path, so a live
+routine of the same name is left alone and reported.
+
+Schedules are account-side state and are not installed by this script. Register
+them once per account from routines/schedules.tsv; see routines/README.md.
+EOF
+}
+
+dry_run=false
+case "${1:-}" in
+  "") ;;
+  --dry-run) dry_run=true ;;
+  --help|-h) usage; exit 0 ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+source_dir="$repo_root/routines"
+target_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/scheduled-tasks"
+
+[ -d "$source_dir" ] || {
+  printf 'missing routines directory: %s\n' "$source_dir" >&2
+  exit 1
+}
+
+if [ ! -d "$target_dir" ]; then
+  if [ "$dry_run" = true ]; then
+    printf 'would create: %s\n' "$target_dir"
+  else
+    mkdir -p "$target_dir"
+    printf 'created: %s\n' "$target_dir"
+  fi
+fi
+
+skipped=0
+
+for routine_path in "$source_dir"/*; do
+  [ -d "$routine_path" ] || continue
+  routine_name=$(basename "$routine_path")
+  [ -f "$routine_path/SKILL.md" ] || {
+    printf 'missing SKILL.md: %s\n' "$routine_path" >&2
+    exit 1
+  }
+
+  destination="$target_dir/$routine_name"
+
+  if [ -L "$destination" ]; then
+    if [ "$(readlink "$destination")" = "$routine_path" ]; then
+      printf 'up to date: %s\n' "$destination"
+    else
+      printf 'skipped, links elsewhere: %s -> %s\n' "$destination" "$(readlink "$destination")"
+      skipped=$((skipped + 1))
+    fi
+    continue
+  fi
+
+  if [ -e "$destination" ]; then
+    printf 'skipped, real directory already present: %s\n' "$destination"
+    skipped=$((skipped + 1))
+    continue
+  fi
+
+  if [ "$dry_run" = true ]; then
+    printf 'would link: %s -> %s\n' "$destination" "$routine_path"
+  else
+    ln -s "$routine_path" "$destination"
+    printf 'linked: %s -> %s\n' "$destination" "$routine_path"
+  fi
+done
+
+if [ "$skipped" -gt 0 ]; then
+  printf '%s routine(s) left alone; remove or rename them to link the canonical copy\n' "$skipped"
+fi
+
+printf '%s\n' 'schedules are not installed; register them from routines/schedules.tsv'

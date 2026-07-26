@@ -48,6 +48,10 @@ Coupling signals that mean skip: imports from private org packages, in-house fra
 
 A skill that is 90% coupled is not a 10% steal. It is a topic heading. Say so and move on.
 
+Anything in the **Steal** bucket carries the source's instructions with it. Audit
+it with `audit-agent-skills` before it earns a place in the target: a skill you
+copied is a dependency you now ship.
+
 ### 4. Profile the target before writing a single line
 
 For every doc in the **Adapt** bucket, dispatch parallel `Explore` subagents (one per area: backend patterns, frontend patterns, testing, build) to report what the target codebase *actually* does, with `file:line` evidence.

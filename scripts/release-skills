@@ -52,6 +52,7 @@ PY
 "$repo_root/scripts/sync-plugin-skills"
 "$repo_root/tests/run.sh"
 "$repo_root/scripts/check-secrets"
+"$repo_root/scripts/scan-skills"
 "$repo_root/scripts/refresh-plugins" --dry-run
 
 printf '%s\n' "release checks passed for version $version"

@@ -30,8 +30,17 @@ fi
 if [ -x "$repo_root/tests/plugin-delivery.test.sh" ]; then
   "$repo_root/tests/plugin-delivery.test.sh"
 fi
+if [ -x "$repo_root/tests/scan-skills.test.sh" ]; then
+  "$repo_root/tests/scan-skills.test.sh"
+fi
+if [ -x "$repo_root/tests/agent-cost.test.sh" ]; then
+  "$repo_root/tests/agent-cost.test.sh"
+fi
+if [ -x "$repo_root/tests/skill-descriptions.test.sh" ]; then
+  "$repo_root/tests/skill-descriptions.test.sh"
+fi
 
-for operational_script in bootstrap check-secrets doctor install-global-guidance refresh-plugins release-skills sync-plugin-skills sync-skills; do
+for operational_script in agent-cost bootstrap check-secrets doctor install-global-guidance install-routines install-third-party refresh-plugins release-skills scan-skills sync-plugin-skills sync-skills; do
   script_path="$repo_root/scripts/$operational_script"
   if [ ! -x "$script_path" ]; then
     printf 'expected executable script: %s\n' "$script_path" >&2

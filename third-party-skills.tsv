@@ -1,0 +1,4 @@
+repo	skills	note
+trailofbits/skills	variant-analysis,mutation-testing,semgrep-rule-creator	sibling-bug discovery, test-suite strength, reusable detection rules
+vercel-labs/agent-skills	web-design-guidelines	accessibility and UX audit over UI code
+mattpocock/skills	resolving-merge-conflicts	resolve conflicts hunk-by-hunk by intent
