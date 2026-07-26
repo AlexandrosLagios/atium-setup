@@ -82,6 +82,58 @@ claude plugin install atium-claude-skills@atium-setup
 Run `scripts/refresh-plugins` after changing a skill. Claude Code caches
 plugin content, so reinstall or update its plugin after changing skills.
 
+## Third-party skills
+
+`third-party-skills.tsv` declares the skills this machine should have from other
+people's repositories, the way `Brewfile` declares packages. They are deployment
+state, not authored content: the installer writes them to `~/.agents/skills/`
+and links them into both agents.
+
+```sh
+scripts/install-third-party --dry-run
+scripts/install-third-party
+scripts/install-third-party --check   # report missing without installing
+```
+
+`scripts/bootstrap --apply` runs the installer, and `scripts/doctor` reports any
+declared skill that is missing. Scan anything new before trusting it; see
+`skills/audit-agent-skills`.
+
+## Agent cost
+
+Claude Code records per-message token usage, model, and skill attribution in its
+own session transcripts, so spend is already on disk. `scripts/agent-cost` reads
+it and reports where the money went, retroactively and without a collector.
+
+```sh
+scripts/agent-cost                                     # last 30 days by skill, model, project
+scripts/agent-cost --days 7 --by day
+scripts/agent-cost --days 30 --offset-days 30 --by skill   # the month before last
+```
+
+Figures are API list-price equivalent, not an invoice: a subscription plan does
+not bill per token. Compare workloads against each other, not against a bill.
+The `agent-cost-digest` routine turns this into a monthly read-only digest.
+
+## Routines
+
+`routines/` holds sample Claude Code scheduled tasks, genericized so they carry
+the shape (caps, ledger, guardrails, notification policy) without any private
+repository, tracker, or environment detail.
+
+```sh
+scripts/install-routines --dry-run
+scripts/install-routines
+```
+
+The installer only creates symlinks into `~/.claude/scheduled-tasks/` and never
+replaces an existing path, so a live routine of the same name is left alone.
+Prompts then sync across machines through `git pull`.
+
+Schedules are account-side state and do not travel with the files. Register them
+once per account from `routines/schedules.tsv`; `routines/README.md` has the
+prompt for it.
+
 ## Release skill changes
 
 ```sh
@@ -95,5 +147,7 @@ and prints the next commands. It does not commit or push.
 
 - `dotfiles/` — chezmoi source files.
 - `skills/` — canonical authored skills.
+- `routines/` — sample scheduled tasks and their schedule manifest.
+- `third-party-skills.tsv` — declared third-party skills installed from other repositories.
 - `scripts/` — setup, validation, and plugin-delivery commands.
 - `tests/` — repository and plugin checks.
