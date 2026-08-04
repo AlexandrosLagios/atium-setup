@@ -1,5 +1,7 @@
 # Keep these in the canonical repository and linked into Claude, but do not
 # install them in Codex until their Claude-only runtime assumptions are ported.
+# audit-harness reads Claude's plugin cache, scheduled tasks, and transcripts.
+audit-harness
 # babysit-prs needs Claude loop scheduling and push notifications.
 babysit-prs
 # graphify dispatches Claude-specific extraction agents.

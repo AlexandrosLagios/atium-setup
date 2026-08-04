@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+"""Report drift and dead weight in the local agent harness.
+
+Every check here exists because the condition it detects was found silently
+true on a working machine. The harness fails quietly: a plugin keeps serving a
+stale skill set, a hook keeps injecting a paragraph nobody acts on, a scheduled
+task keeps running with no source of truth in the repository. None of that
+shows up as an error, so nothing surfaces it until something behaves oddly.
+
+Read-only and offline. It reports; it does not repair.
+"""
+
+import argparse
+import collections
+import json
+import pathlib
+import re
+import subprocess
+import sys
+
+CLAUDE = pathlib.Path.home() / ".claude"
+REPO = pathlib.Path(__file__).resolve().parent.parent
+GENERATED_NAME = re.compile(r"-[0-9a-f]{6}$")
+SHELL_FRAGMENT = ("do", "done", "then", "fi", "else", "esac", "fi;")
+FINDINGS = []
+
+
+def report(check, severity, message):
+    FINDINGS.append((check, severity, message))
+
+
+def skill_names(directory):
+    if not directory.is_dir():
+        return set()
+    return {p.name for p in directory.iterdir() if (p / "SKILL.md").is_file()}
+
+
+def check_plugin_drift():
+    """A plugin's installed cache is a copy, and `plugin update` compares versions.
+
+    Editing skills without bumping the plugin version therefore leaves the
+    installed copy frozen: the update reports "already at the latest version"
+    and the new skills never load. Comparing the skill sets is the only check
+    that sees it.
+    """
+    manifest = CLAUDE / "plugins" / "installed_plugins.json"
+    if not manifest.is_file():
+        return
+    installed = json.loads(manifest.read_text()).get("plugins", {})
+    marketplaces = {}
+    known = CLAUDE / "plugins" / "known_marketplaces.json"
+    if known.is_file():
+        for name, entry in json.loads(known.read_text()).items():
+            source = entry.get("source", {})
+            if source.get("source") == "directory" and source.get("path"):
+                marketplaces[name] = pathlib.Path(source["path"])
+
+    for key, entries in installed.items():
+        plugin, _, marketplace = key.partition("@")
+        root = marketplaces.get(marketplace)
+        if root is None:
+            continue  # remote marketplace: no local source to compare against
+        for entry in entries:
+            cached = pathlib.Path(entry["installPath"]) / "skills"
+            source = root / "plugins" / plugin / "skills"
+            missing = sorted(skill_names(source) - skill_names(cached))
+            extra = sorted(skill_names(cached) - skill_names(source))
+            if missing:
+                report(
+                    "plugin-drift",
+                    "high",
+                    f"{key} v{entry.get('version')} is serving a stale copy: "
+                    f"{len(missing)} skill(s) absent from the installed cache "
+                    f"({', '.join(missing)}). Bump the plugin version, then "
+                    f"run scripts/refresh-plugins.",
+                )
+            if extra:
+                report(
+                    "plugin-drift",
+                    "low",
+                    f"{key} cache holds skills no longer in the source: "
+                    f"{', '.join(extra)}.",
+                )
+            sha = entry.get("gitCommitSha")
+            if sha and (root / ".git").exists():
+                behind = git(root, "rev-list", "--count", f"{sha}..HEAD")
+                if behind and behind != "0":
+                    report(
+                        "plugin-drift",
+                        "medium",
+                        f"{key} was installed from a commit {behind} behind "
+                        f"{root.name} HEAD.",
+                    )
+
+
+def check_name_collisions(repo):
+    """Two skills with one name are both offered; the model picks by description.
+
+    A repository-specific skill and a portable one of the same name are not
+    interchangeable, so the collision is a coin flip on which conventions get
+    applied.
+    """
+    sources = collections.defaultdict(list)
+    annotated = set()
+    for path in (CLAUDE / "plugins" / "cache").glob("*/*/*/skills"):
+        for name in skill_names(path):
+            sources[name].append(f"plugin:{path.parents[1].name}")
+            if "prefer the repository's own" in (path / name / "SKILL.md").read_text():
+                annotated.add(name)
+    for label, path in (("user", CLAUDE / "skills"), ("project", repo and repo / ".claude" / "skills")):
+        if path:
+            for name in skill_names(path):
+                sources[name].append(label)
+    for name, where in sorted(sources.items()):
+        if name in annotated:
+            continue  # the portable copy already says which one wins
+        if len(set(where)) > 1:
+            report(
+                "collision",
+                "medium",
+                f"skill '{name}' is offered by {' + '.join(sorted(set(where)))}; "
+                f"say in each description which one wins.",
+            )
+
+
+def check_routine_drift():
+    """Scheduled tasks are account state; the repository only holds their prompts.
+
+    Either half can move without the other, and nothing reconciles them.
+    """
+    live_dir = CLAUDE / "scheduled-tasks"
+    if not live_dir.is_dir():
+        return
+    live = {p.name for p in live_dir.iterdir() if p.is_dir()}
+    samples = {p.name for p in (REPO / "routines").iterdir() if p.is_dir()}
+    tsv = REPO / "routines" / "schedules.tsv"
+    declared = set()
+    if tsv.is_file():
+        for line in tsv.read_text().splitlines()[1:]:
+            if line.strip():
+                declared.add(line.split("\t")[0])
+
+    for name in sorted(live - samples):
+        report(
+            "routine-drift",
+            "medium",
+            f"scheduled task '{name}' runs on this machine with no copy under "
+            f"routines/; it is lost when the machine is.",
+        )
+    for name in sorted(samples - live):
+        report(
+            "routine-drift",
+            "low",
+            f"routines/{name} is not installed; scripts/install-routines would add it.",
+        )
+    for name in sorted(declared - samples):
+        report("routine-drift", "low", f"schedules.tsv declares '{name}', which has no routine directory.")
+    for name in sorted(samples - declared):
+        report("routine-drift", "low", f"routines/{name} has no schedule in schedules.tsv.")
+
+
+def check_hook_noise(sessions):
+    """A hook that injects context costs tokens on every later turn of the session.
+
+    Injected text is not deduplicated and stays in the transcript, so a hook
+    firing hundreds of times per session is re-sent with every subsequent
+    request. Cost is easy to measure; effect is not, so this reports the cost
+    and leaves the judgement to a human.
+    """
+    root = CLAUDE / "projects"
+    if not root.is_dir():
+        return
+    files = sorted(root.glob("*/*.jsonl"), key=lambda p: p.stat().st_mtime)[-sessions:]
+    if not files:
+        return
+    counts = collections.Counter()
+    for path in files:
+        with path.open(encoding="utf-8", errors="ignore") as handle:
+            for line in handle:
+                if "hook additional context" not in line:
+                    continue
+                for match in re.finditer(r"hook additional context:\s*(.{40,400}?)(?:\\n|\")", line):
+                    counts[match.group(1)[:200]] += 1
+    for text, count in counts.most_common(5):
+        if count < 25:
+            continue
+        report(
+            "hook-noise",
+            "high" if count >= 100 else "medium",
+            f"{count} identical hook injections across {len(files)} sessions "
+            f"(~{count * len(text) // 4} tokens, re-sent every turn thereafter): "
+            f"{text[:90]}...",
+        )
+
+
+def check_dead_config(repo):
+    """Settings accumulate entries that can no longer match anything.
+
+    A hook pointing at a deleted script fails silently on every tool call, and
+    a permission entry captured from a multi-line command is a fragment that no
+    command will ever equal.
+    """
+    for label, path in (
+        ("user", CLAUDE / "settings.json"),
+        ("project", repo and repo / ".claude" / "settings.json"),
+        ("local", repo and repo / ".claude" / "settings.local.json"),
+    ):
+        if not path or not path.is_file():
+            continue
+        try:
+            data = json.loads(path.read_text())
+        except json.JSONDecodeError:
+            report("dead-config", "high", f"{label} settings is not valid JSON: {path}")
+            continue
+        for event, groups in (data.get("hooks") or {}).items():
+            for group in groups:
+                for hook in group.get("hooks", []):
+                    command = hook.get("command", "")
+                    first = command.split()[0] if command.split() else ""
+                    first = first.replace("${CLAUDE_PROJECT_DIR}", str(repo) if repo else "")
+                    if first.startswith("/") and not pathlib.Path(first).exists():
+                        report(
+                            "dead-config",
+                            "high",
+                            f"{label} {event} hook points at a missing file: {first}",
+                        )
+        for rule in ((data.get("permissions") or {}).get("allow") or []):
+            body = rule[rule.find("(") + 1 : rule.rfind(")")] if "(" in rule else ""
+            if body.split(" ")[0] in SHELL_FRAGMENT or body.count("(") != body.count(")"):
+                report(
+                    "dead-config",
+                    "low",
+                    f"{label} permission rule is a shell fragment and can never "
+                    f"match: {rule[:70]}",
+                )
+
+
+def git(repo, *args):
+    try:
+        return subprocess.check_output(
+            ["git", "-C", str(repo), *args], stderr=subprocess.DEVNULL, text=True
+        ).strip()
+    except Exception:
+        return ""
+
+
+def check_worktrees(repo, base):
+    """Worktrees are cheap to create and nothing removes them.
+
+    Each one is a full checkout with its own node_modules, so an abandoned
+    worktree is tens of gigabytes and slows every repository-wide search.
+    """
+    if not repo:
+        return
+    listing = git(repo, "worktree", "list", "--porcelain")
+    if not listing:
+        return
+    trees = []
+    current = {}
+    for line in listing.splitlines():
+        if line.startswith("worktree "):
+            current = {"path": line.split(" ", 1)[1]}
+            trees.append(current)
+        elif line.startswith("branch "):
+            current["branch"] = line.split(" ", 1)[1].replace("refs/heads/", "")
+    trees = [t for t in trees if t.get("branch") != base]
+
+    merged = [t for t in trees if t.get("branch") and _is_ancestor(repo, t["branch"], base)]
+    if merged:
+        report(
+            "worktree",
+            "medium",
+            f"{len(merged)} of {len(trees)} worktrees sit on branches already "
+            f"merged into origin/{base}: "
+            + ", ".join(t["branch"] for t in merged[:6]),
+        )
+    odd = [
+        t for t in trees
+        if GENERATED_NAME.search(pathlib.Path(t["path"]).name)
+        or (t.get("branch") or "").startswith("claude/")
+    ]
+    if odd:
+        report(
+            "worktree",
+            "low",
+            f"{len(odd)} worktrees keep a generated name instead of a task slug: "
+            + ", ".join(pathlib.Path(t["path"]).name for t in odd[:6]),
+        )
+    if len(trees) >= 10:
+        report("worktree", "medium", f"{len(trees)} worktrees are checked out; each is a full install.")
+
+
+def _is_ancestor(repo, branch, base):
+    return (
+        subprocess.run(
+            ["git", "-C", str(repo), "merge-base", "--is-ancestor", branch, f"origin/{base}"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        ).returncode
+        == 0
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--repo", help="repository to audit for skills, settings, and worktrees")
+    parser.add_argument("--base", default="development", help="base branch for the worktree check")
+    parser.add_argument("--sessions", type=int, default=25, help="recent transcripts to scan for hook noise")
+    args = parser.parse_args()
+
+    repo = pathlib.Path(args.repo).resolve() if args.repo else None
+    if repo is None:
+        top = git(pathlib.Path.cwd(), "rev-parse", "--show-toplevel")
+        repo = pathlib.Path(top) if top else None
+
+    check_plugin_drift()
+    check_name_collisions(repo)
+    check_routine_drift()
+    check_hook_noise(args.sessions)
+    check_dead_config(repo)
+    check_worktrees(repo, args.base)
+
+    if not FINDINGS:
+        print("harness audit: no drift found")
+        return 0
+    order = {"high": 0, "medium": 1, "low": 2}
+    for check, severity, message in sorted(FINDINGS, key=lambda f: (order[f[1]], f[0])):
+        print(f"{severity:6} {check:14} {message}")
+    return 1 if any(f[1] == "high" for f in FINDINGS) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

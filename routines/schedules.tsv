@@ -5,6 +5,7 @@ bug-lead-burndown	30 19 * * 1-5	weekday evening
 nightly-commit-audit	0 21 * * 1-5	weekday evening, after burndown
 flaky-ci-sentinel	0 15 * * 5	weekly
 tracker-drift-sweep	30 16 * * 5	weekly, after the CI scan
+harness-audit	30 17 * * 5	weekly, last of the Friday sweeps
 renovate-prs	0 9 * * 0	weekly
 memory-consolidation	30 12 1 * *	monthly
 agent-cost-digest	0 13 1 * *	monthly, after memory consolidation

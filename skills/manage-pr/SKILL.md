@@ -1,6 +1,6 @@
 ---
 name: manage-pr
-description: Use when creating a pull request, editing an existing PR's title or description, or handling post-open PR events such as CI failures, merge conflicts with the base branch, or reviewer questions; also when given a raw CI run URL or asked to "fix CI" with no PR open yet. Enforces Conventional-Commits-with-scope titles, an optional tracker-id suffix, the short-prose description style, a pre-open scope check, and the policy that PR comments only ever accompany an actual code fix.
+description: Use when creating a pull request, editing an existing PR's title or description, or handling post-open PR events such as CI failures, merge conflicts with the base branch, or reviewer questions; also when given a raw CI run URL or asked to "fix CI" with no PR open yet. Enforces Conventional-Commits-with-scope titles, an optional tracker-id suffix, the short-prose description style, a pre-open scope check, and the policy that PR comments only ever accompany an actual code fix. Portable fallback: prefer the repository's own manage-pr skill when it ships one.
 ---
 
 # manage-pr

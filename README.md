@@ -99,6 +99,21 @@ scripts/install-third-party --check   # report missing without installing
 declared skill that is missing. Scan anything new before trusting it; see
 `skills/audit-agent-skills`.
 
+## Harness audit
+
+The harness has no failing state: a plugin serves the skill set it was installed
+with, a hook injects context nobody acts on, a scheduled task runs with no copy
+in any repository. `scripts/audit-harness` looks for the drift on purpose.
+
+```sh
+scripts/audit-harness --repo /path/to/the/repository/you/work/in
+```
+
+Read-only and offline; exits non-zero on a `high` finding. `scripts/doctor`
+cannot substitute for it, because it compares plugin versions and a stale cache
+carries the current version. `skills/audit-harness` covers the judgement the
+scan cannot make, and the `harness-audit` routine runs it weekly.
+
 ## Agent cost
 
 Claude Code records per-message token usage, model, and skill attribution in its
