@@ -99,6 +99,10 @@ scripts/install-third-party --check   # report missing without installing
 declared skill that is missing. Scan anything new before trusting it; see
 `skills/audit-agent-skills`.
 
+A skill adapted from someone else's repository instead of installed from it lives
+in `skills/` like any authored skill, names its origin in a Provenance section,
+and carries its upstream licence in `THIRD-PARTY-NOTICES.md`.
+
 ## Harness audit
 
 The harness has no failing state: a plugin serves the skill set it was installed
@@ -164,5 +168,6 @@ and prints the next commands. It does not commit or push.
 - `skills/` — canonical authored skills.
 - `routines/` — sample scheduled tasks and their schedule manifest.
 - `third-party-skills.tsv` — declared third-party skills installed from other repositories.
+- `THIRD-PARTY-NOTICES.md` — upstream licences for skills adapted from other repositories.
 - `scripts/` — setup, validation, and plugin-delivery commands.
 - `tests/` — repository and plugin checks.
