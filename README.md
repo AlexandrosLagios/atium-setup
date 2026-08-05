@@ -65,9 +65,12 @@ scripts/install-global-guidance
 ### Plugin delivery
 
 Codex receives portable skills through `atium-skills`; Claude Code receives
-all skills through `atium-claude-skills`. Both are thin wrappers that link to
-the canonical `skills/` directories. `skills/.codexignore` lists skills that
-remain Claude-only because of runtime requirements.
+all skills through `atium-claude-skills`. Both wrappers are generated from the
+canonical `skills/` directory: the Claude one links it, and the Codex one holds
+git-ignored copies, because `codex plugin add` snapshots a plugin without
+following symlinks and a linked skill installs as nothing.
+`skills/.codexignore` lists skills that remain Claude-only because of runtime
+requirements.
 
 ```sh
 # Codex

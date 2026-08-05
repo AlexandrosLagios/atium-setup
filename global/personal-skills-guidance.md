@@ -6,8 +6,10 @@ This repository is the only authored source for personal agent skills.
   `skills/<kebab-case-name>/` in this repository.
 - Never author directly in `~/.claude/skills`, `~/.claude/plugins`, or
   `~/.codex/skills`; they are generated deployment state.
-- Keep every skill authored once. Both plugins must use generated symlinks,
-  never copied skill content.
+- Keep every skill authored once. `skills/` is the only authored copy. The
+  Claude plugin links it. The Codex plugin holds generated, git-ignored copies,
+  because `codex plugin add` snapshots a plugin without following symlinks.
+  Never edit either wrapper by hand; run `scripts/sync-plugin-skills`.
 - Classify compatibility before deployment. `scripts/sync-plugin-skills`
   exposes portable skills through the Codex plugin; Claude Code loads all
   personal skills through the `atium-claude-skills` plugin. A skill with a

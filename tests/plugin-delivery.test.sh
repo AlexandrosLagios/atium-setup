@@ -12,18 +12,23 @@ exclude_file="$source_dir/.codexignore"
 [ -L "$claude_dir" ]
 [ "$(readlink "$claude_dir")" = "../../skills" ]
 
+# The Codex wrapper holds copies, not links: `codex plugin add` snapshots the
+# plugin without following symlinks, so a linked skill installs as nothing.
 for skill_path in "$source_dir"/*; do
   [ -d "$skill_path" ] || continue
   skill_name=$(basename "$skill_path")
-  codex_link="$codex_dir/$skill_name"
+  codex_copy="$codex_dir/$skill_name"
 
   if grep -F -x "$skill_name" "$exclude_file" >/dev/null 2>&1; then
-    [ ! -e "$codex_link" ]
+    [ ! -e "$codex_copy" ]
   else
-    [ -L "$codex_link" ]
-    [ "$(readlink "$codex_link")" = "../../../skills/$skill_name" ]
+    [ ! -L "$codex_copy" ]
+    [ -d "$codex_copy" ]
+    diff -r -q "$skill_path" "$codex_copy" >/dev/null
   fi
 done
+
+! find "$codex_dir" -type l -mindepth 1 | grep -q .
 
 grep -Fq '"source": "./plugins/atium-claude-skills"' "$repo_root/.claude-plugin/marketplace.json"
 grep -Fq '"path": "./plugins/atium-skills"' "$repo_root/.agents/plugins/marketplace.json"

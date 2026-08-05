@@ -5,9 +5,13 @@ usage() {
   cat <<'EOF'
 Usage: scripts/sync-plugin-skills [--dry-run]
 
-Build the generated Codex plugin skill links from the canonical skills directory.
-Skills listed in skills/.codexignore are excluded. The Claude plugin links the
-canonical skills directory directly.
+Build the generated Codex plugin skill copies from the canonical skills
+directory. Skills listed in skills/.codexignore are excluded. The Claude plugin
+links the canonical skills directory directly.
+
+The Codex wrapper holds copies rather than links because `codex plugin add`
+snapshots the plugin without following symlinks, which installs an empty skill
+set. The copies are generated and git-ignored; skills/ stays the only source.
 EOF
 }
 
@@ -61,44 +65,38 @@ is_excluded() {
   grep -F -x "$1" "$exclude_file" >/dev/null 2>&1
 }
 
-link_skill() {
+copy_skill() {
   skill_name=$1
   destination="$plugin_skills_dir/$skill_name"
-  target="../../../skills/$skill_name"
+  source="$source_dir/$skill_name"
 
-  if [ -L "$destination" ]; then
-    if [ "$(readlink "$destination")" = "$target" ]; then
-      printf 'up to date: %s\n' "$destination"
-      return 0
-    fi
-    printf 'refusing to replace unexpected plugin skill link: %s\n' "$destination" >&2
+  if [ -e "$destination" ] && [ ! -d "$destination" ] || [ -L "$destination" ]; then
+    printf 'refusing to replace unexpected plugin skill path: %s\n' "$destination" >&2
     exit 1
   fi
-  if [ -e "$destination" ]; then
-    printf 'refusing to replace existing plugin skill path: %s\n' "$destination" >&2
-    exit 1
+  if [ -d "$destination" ] && diff -r -q "$source" "$destination" >/dev/null 2>&1; then
+    printf 'up to date: %s\n' "$destination"
+    return 0
   fi
   if [ "$dry_run" = true ]; then
-    printf 'would link: %s -> %s\n' "$destination" "$target"
+    printf 'would copy: %s -> %s\n' "$source" "$destination"
   else
-    ln -s "$target" "$destination"
-    printf 'linked: %s -> %s\n' "$destination" "$target"
+    rm -rf "$destination"
+    cp -R "$source" "$destination"
+    printf 'copied: %s -> %s\n' "$source" "$destination"
   fi
 }
 
-remove_stale_link() {
+remove_stale_copy() {
   destination=$1
   skill_name=$(basename "$destination")
-  expected="../../../skills/$skill_name"
-  [ -L "$destination" ] || return 0
-  [ "$(readlink "$destination")" = "$expected" ] || return 0
   [ -d "$source_dir/$skill_name" ] && ! is_excluded "$skill_name" && return 0
 
   if [ "$dry_run" = true ]; then
-    printf 'would unlink stale plugin skill: %s\n' "$destination"
+    printf 'would remove stale plugin skill: %s\n' "$destination"
   else
-    rm "$destination"
-    printf 'unlinked stale plugin skill: %s\n' "$destination"
+    rm -rf "$destination"
+    printf 'removed stale plugin skill: %s\n' "$destination"
   fi
 }
 
@@ -112,10 +110,10 @@ for skill_path in "$source_dir"/*; do
     printf 'missing SKILL.md: %s\n' "$skill_path" >&2
     exit 1
   }
-  is_excluded "$skill_name" || link_skill "$skill_name"
+  is_excluded "$skill_name" || copy_skill "$skill_name"
 done
 
 for destination in "$plugin_skills_dir"/*; do
   [ -e "$destination" ] || [ -L "$destination" ] || continue
-  remove_stale_link "$destination"
+  remove_stale_copy "$destination"
 done
