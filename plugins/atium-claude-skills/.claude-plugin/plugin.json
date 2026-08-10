@@ -1,7 +1,7 @@
 {
   "name": "atium-claude-skills",
   "description": "Canonical, public-safe personal agent skills.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": {
     "name": "Atium Setup"
   }
