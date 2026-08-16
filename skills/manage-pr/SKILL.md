@@ -1,6 +1,6 @@
 ---
 name: manage-pr
-description: Use when creating a pull request, editing an existing PR's title or description, or handling post-open PR events such as CI failures, merge conflicts with the base branch, or reviewer questions; also when given a raw CI run URL or asked to "fix CI" with no PR open yet. Enforces Conventional-Commits-with-scope titles, an optional tracker-id suffix that is never solicited, the short-prose description style, a pre-open scope check, and the policy that PR comments only ever accompany an actual code fix. Portable fallback: prefer the repository's own manage-pr skill when it ships one.
+description: Use when creating a pull request, editing an existing PR's title or description, or handling post-open PR events such as CI failures, merge conflicts with the base branch, or reviewer questions; also when given a raw CI run URL or asked to "fix CI" with no PR open yet. Enforces Conventional-Commits-with-scope titles, an optional tracker-id suffix that is never solicited, the short-prose description style, a pre-open scope check, and the policy that a PR comment carries either a code fix or verifiable evidence. Portable fallback: prefer the repository's own manage-pr skill when it ships one.
 ---
 
 # manage-pr
@@ -80,7 +80,7 @@ Order dependent slices so each stacks on the previous. State the base for every 
 
 ## Post-open events
 
-Default posture: **do not comment on the PR**. Comment only when pushing an actual fix.
+Default posture: **do not comment on the PR**. A comment goes out in two cases only: alongside an actual fix you push, or as a refutation of a review comment whose factual claim you disproved. A refutation carries the evidence, and `address-pr` states the evidence bar. A reply with neither a code change nor verifiable evidence never goes out.
 
 ### CI failures
 
@@ -100,7 +100,7 @@ Know which red checks actually gate. Advisory repo-wide linters (complexity scor
 
 ### Reviewer questions
 
-Answer the user in chat, not on the PR. Post a reply on the PR only when it accompanies the code change that addresses the comment. If the question needs clarification, ask the user; do not speculate on the PR.
+Answer the user in chat, not on the PR. Post a reply on the PR in two cases: the reply accompanies the code change that addresses the comment, or the reply refutes a factual claim and carries the evidence. If the question needs clarification, ask the user; do not speculate on the PR.
 
 ### Merge conflicts with the base
 
@@ -115,6 +115,8 @@ Use `merge-back`. Resolve locally, never through the web UI. Re-run typecheck an
 | CI failure, related or unclear | Only paired with the fix commit |
 | Reviewer question, no code change yet | No, answer in chat |
 | Reviewer question, answered by a fix | Yes, alongside the fix |
+| Review comment whose factual claim you disproved | Yes, a refutation that carries the evidence |
+| Review comment you disagree with, no evidence | No, route it to the user |
 
 ## Editing an existing PR
 
