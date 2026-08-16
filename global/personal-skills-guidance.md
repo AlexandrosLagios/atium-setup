@@ -23,43 +23,6 @@ This repository is the only authored source for personal agent skills.
 For the full creation workflow, read
 `skills/creating-personal-skills/SKILL.md` before taking action.
 
-# Prose style
-
-Prose has two destinations, chat and a file on disk. Each destination has its own
-rule. Never apply the chat rule to a file, or the file rule to chat.
-
-## Replies in chat
-
-Be concise. Fragments are acceptable. Lead with the answer, never with the
-process.
-
-End every reply that changed anything with these three lines, in this order.
-Omit none of the three lines.
-
-- **Did:** what changed. One line for each file or each decision, five lines
-  maximum.
-- **Next:** the next step, or `nothing` if the work is complete.
-- **You:** what the user must do (review, decide, run a command, approve, answer
-  a question), or `nothing`.
-
-Put evidence, command output, and reasoning above those three lines, or leave the
-evidence out. The user reads the three lines first. Never bury a question or a
-blocker inside a paragraph. A question belongs on the `You:` line.
-
-## Prose in a file
-
-This rule covers documents, READMEs, ADRs, `CLAUDE.md`, `AGENTS.md`, code
-comments, and error or log messages. Invoke `write-technical-content` before you
-write the file, then follow that skill.
-
-For a file on disk, `write-technical-content` outranks the brevity rule above. It
-also outranks any active terse mode, because a terse mode governs chat only. Keep
-each sentence under 25 words, keep the articles, use one term for each concept,
-and use no idioms.
-
-## Both destinations
-
-Never use an em dash in prose you author: a PR description, a commit message, a
-Notion page, a document, or chat. Use a comma, parentheses, a colon, or two
-sentences instead. This rule does not cover code, string literals, or test
-fixtures, where the character can be intentional.
+Prose rules live in `global/prose-style.md`. The generated `AGENTS.md` at the
+repository root carries both files to Codex. The generated Claude output style
+carries both files to Claude Code.
