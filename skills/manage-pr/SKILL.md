@@ -1,6 +1,6 @@
 ---
 name: manage-pr
-description: Use when creating a pull request, editing an existing PR's title or description, or handling post-open PR events such as CI failures, merge conflicts with the base branch, or reviewer questions; also when given a raw CI run URL or asked to "fix CI" with no PR open yet. Enforces Conventional-Commits-with-scope titles, an optional tracker-id suffix, the short-prose description style, a pre-open scope check, and the policy that PR comments only ever accompany an actual code fix. Portable fallback: prefer the repository's own manage-pr skill when it ships one.
+description: Use when creating a pull request, editing an existing PR's title or description, or handling post-open PR events such as CI failures, merge conflicts with the base branch, or reviewer questions; also when given a raw CI run URL or asked to "fix CI" with no PR open yet. Enforces Conventional-Commits-with-scope titles, an optional tracker-id suffix that is never solicited, the short-prose description style, a pre-open scope check, and the policy that PR comments only ever accompany an actual code fix. Portable fallback: prefer the repository's own manage-pr skill when it ships one.
 ---
 
 # manage-pr
@@ -29,7 +29,9 @@ feat(reward-schemes): add tiered accrual [ABC-3880]
 feat(api,worker): backfill missing events [ABC-3880][ABC-3881]
 ```
 
-Resolve the id from the tracker record itself, not from a URL slug. In a Notion workspace, resolve it via the Notion MCP from the page id. Always ask for the tracker link before finalizing the title, even when the user did not mention one. "No" is an acceptable answer: omit the suffix. Never invent an id.
+Do not ask for a tracker link. Add the suffix only when the user supplies a tracker page, or when one is already linked from the branch or the task at hand. Otherwise omit it and open the PR without one.
+
+When you do have a tracker page, resolve the id from the record itself, not from a URL slug. In a Notion workspace, resolve it via the Notion MCP from the page id. Never invent an id.
 
 ## Description format
 
@@ -116,14 +118,13 @@ Use `merge-back`. Resolve locally, never through the web UI. Re-run typecheck an
 
 ## Editing an existing PR
 
-Re-check the title against the rules and rewrite it in place if it does not conform. Ask for tracker links the same way as on creation. Replace a non-conforming description wholesale rather than appending to it.
+Re-check the title against the rules and rewrite it in place if it does not conform. Leave an existing tracker suffix alone, and do not ask for one that is absent. Replace a non-conforming description wholesale rather than appending to it.
 
 ## Checklist
 
 1. Pre-open scope verification, including `ensure-pr-readiness`.
 2. Determine the type.
 3. List the scopes; cap at three packages or use the fixed single word.
-4. Ask for tracker links. Accept "no".
-5. Resolve each id from the tracker record. Concatenate with no separator.
-6. Compose `<type>(<scope>): <subject>[<tickets>]`.
-7. Write one or two sentences, plus at most 5 one-line bullets only if warranted.
+4. If, and only if, a tracker page was supplied, resolve each id from the tracker record and concatenate with no separator.
+5. Compose `<type>(<scope>): <subject>`, with the tracker suffix appended only when step 4 produced one.
+6. Write one or two sentences, plus at most 5 one-line bullets only if warranted.
