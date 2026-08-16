@@ -1,6 +1,6 @@
 ---
 name: shape
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Use this in place of superpowers:brainstorming. Explores user intent, requirements and design before implementation."
+description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Use this in place of any other brainstorming skill. Explores user intent, requirements and design before implementation."
 ---
 
 # Shaping Ideas Into Designs

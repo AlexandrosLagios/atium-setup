@@ -2,3 +2,4 @@ repo	skills	note
 trailofbits/skills	variant-analysis,mutation-testing,semgrep-rule-creator	sibling-bug discovery, test-suite strength, reusable detection rules
 vercel-labs/agent-skills	web-design-guidelines	accessibility and UX audit over UI code
 mattpocock/skills	resolving-merge-conflicts	resolve conflicts hunk-by-hunk by intent
+obra/superpowers	dispatching-parallel-agents,finishing-a-development-branch,receiving-code-review,requesting-code-review,subagent-driven-development,systematic-debugging,test-driven-development,using-git-worktrees,verification-before-completion,writing-plans,writing-skills	core spine without the always-on session injection; brainstorming, executing-plans and using-superpowers are excluded on purpose
