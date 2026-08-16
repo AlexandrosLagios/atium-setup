@@ -9,7 +9,7 @@
       "name": "atium-claude-skills",
       "source": "./plugins/atium-claude-skills",
       "description": "Canonical skills from the Atium setup repository.",
-      "version": "0.3.3"
+      "version": "0.3.4"
     }
   ]
 }
