@@ -1,35 +1,42 @@
 ---
 name: write-technical-content
-description: Use when writing or editing technical documentation: READMEs, API docs, runbooks, ADRs, migration guides, skill and agent instructions, code comments, and error or log messages. Applies ASD-STE100 Simplified Technical English adapted for software, and enforces one instruction per sentence, active voice, present tense, and consistent terminology. Not for commit messages, PR titles or descriptions, or Notion content.
+description: Use when writing or editing technical documentation: READMEs, API docs, runbooks, ADRs, migration guides, skill and agent instructions, code comments, and error or log messages. Applies ASD-STE100 Simplified Technical English adapted for software, and enforces one instruction per sentence, active voice, present tense, and unambiguous pronouns. Not for commit messages, PR titles or descriptions, or Notion content.
 ---
 
 # write-technical-content
 
-Rules for writing technical documentation, derived from ASD-STE100 Simplified
+Rules for a file that stays in a repository, derived from ASD-STE100 Simplified
 Technical English and adapted for software.
+
+The universal prose rules apply here as well. They ban a fluff sentence, a fluff
+word, an unsupported claim, a varied term, and the em dash.
 
 ## Rules
 
-1. One instruction per sentence.
-2. Procedural sentence: 20 words maximum. Descriptive sentence: 25 words
-   maximum.
-3. Active voice. Imperative mood for instructions. Write "Run the migration",
-   not "The migration should be run".
-4. Present tense. Do not write "will".
-5. One word, one meaning. Choose one term for each concept and repeat it. Never
-   vary a term for style.
-6. Keep articles and complete sentence structure. Simplified Technical English
-   is not terse-speak.
-7. No ambiguous pronouns. If more than one noun could be the referent, repeat
-   the noun instead of writing "it" or "this".
-8. A warning or a caution comes before the step it applies to, never after.
-9. Six items maximum in one procedure step list. Split a longer list.
-10. No gerund as a noun. Write "To configure the server, edit the file", not
-    "Configuring the server is done by editing the file".
-11. No slang, no idioms, no humour, no jargon used for flavour.
-12. Procedural paragraph: six sentences maximum. Descriptive paragraph: ten
-    sentences maximum.
-13. No em-dashes. Use a comma, a colon, parentheses, or two sentences.
+1. Write one instruction per sentence.
+2. Write in the active voice. Use the imperative mood for an instruction: "Run
+   the migration", not "The migration should be run".
+3. Write in the present tense. Never write "will".
+4. Keep the articles and the complete sentence structure. Simplified Technical
+   English is not terse-speak.
+5. Never write an ambiguous pronoun. When two nouns could be the referent,
+   repeat the noun instead of writing "it" or "this".
+6. Put a warning or a caution before the step it applies to, never after.
+7. Never write a gerund as a noun. Write "To configure the server, edit the
+   file", not "Configuring the server is done by editing the file".
+8. Never write slang, an idiom, humour, or jargon used for flavour.
+
+## Length limits
+
+| Unit                   | Limit        |
+| ---------------------- | ------------ |
+| A procedural sentence  | 20 words     |
+| A descriptive sentence | 25 words     |
+| A procedural paragraph | 6 sentences  |
+| A descriptive paragraph| 10 sentences |
+| A procedure step list  | 6 items      |
+
+Split a list that exceeds six items into two steps.
 
 ## Word choice
 
@@ -38,22 +45,12 @@ Before you choose a verb or a noun that has a shorter equivalent, read
 
 ## Scope
 
-This skill covers documentation. Three kinds of text belong elsewhere:
+This skill governs a file that stays in a repository. The destination table in
+the prose style routes every other destination, including a PR description, a
+commit message, and a Notion page.
 
-* PR titles and descriptions: use `manage-pr`.
-* Notion content: use `write-notion-content`.
-* Commit messages: follow the Conventional Commits rule the repository states in
-  its own `AGENTS.md` or `CLAUDE.md`. No skill governs commit message style, and
-  `manage-pr` does not: it owns the PR title, which borrows Conventional Commit
-  syntax.
-
-The Notion boundary matters because the two skills give opposite instructions.
-`write-notion-content` cuts articles and filler. This skill keeps articles and
-complete sentences. The destination decides: content going into Notion follows
-`write-notion-content`, and this skill does not apply.
-
-These rules govern the documentation this skill produces, and nothing more. The
-skill claims no precedence over other active modes or skills.
+`write-notion-content` gives the opposite instruction to rule 4, because it cuts
+the articles. The destination decides which skill applies, never the subject.
 
 ## Provenance
 

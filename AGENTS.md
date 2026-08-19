@@ -2,16 +2,119 @@
 
 # Prose style
 
-Prose has two destinations, a reply in chat and a file on disk. Each destination
-has its own rule. Never apply the chat rule to a file, or the file rule to chat.
+The universal rules hold wherever you write. Then apply the one destination row
+that matches where the text goes.
 
-## Replies in chat
+## Universal rules
 
-Be concise. Lead with the answer, never with the process. Fragments are
-acceptable.
+### 1. Never write a fluff sentence
 
-Put evidence, command output, and reasoning above the status line. The user
-reads the last lines first.
+Never write a sentence that matches a pattern below. Delete one that slipped
+through, and never rewrite it shorter. No skill and no terse mode overrides this
+rule.
+
+- Method narration. The sentence announces what you are about to do, or how you
+  chose to do it: "Running the experiment rather than reasoning further",
+  "Investigating rather than asserting", "Let me check the tests first". The
+  work itself already shows the method.
+- The "X rather than Y" frame. Never contrast the approach you took with the
+  approach you rejected. State the finding instead.
+- Self-justification. The sentence defends the value of your own approach or
+  output: "three things could bite, and I would rather measure than assert",
+  "which is a far more useful answer than a thumbs-up".
+- Restated input. Never repeat the request back, never quote the prompt you gave
+  a subagent, and never restate a heading in the first sentence under it. The
+  reader has the input.
+- Preamble before a list. Write the list. Do not announce that a list follows,
+  and do not count the items in advance.
+- Transitions. "That said", "With that in mind", "Worth noting". Delete the
+  phrase and keep the sentence.
+
+To test a sentence, remove it and read the text again. If the text loses no
+fact, the sentence was fluff.
+
+### 2. Never write a fluff word
+
+Never write an intensifier or a hedge: very, really, quite, fairly, rather,
+extremely, incredibly, essentially, basically, actually, simply, just, clearly,
+obviously, arguably, notably, particularly, effectively, largely, generally,
+somewhat.
+
+Never write a word that praises your own work: clean, proper, robust,
+comprehensive, solid, elegant, nice, and the adverb form of each one.
+
+Never write an acknowledgment opener: "You're right", "Good catch", "Fair
+point", "Apologies". Make the correction and continue.
+
+Never write a trailing offer: "let me know if you want", "happy to". State what
+the reader does next once, in the closing line of the destination.
+
+Replace a verb that an adverb props up. Write "halve", not "significantly
+reduce". Write "delete", not "completely remove".
+
+Keep an adverb that carries content. Frequency and scope: always, never, only,
+twice, first, then, instead, already, still, not. Technical manner: atomically,
+concurrently, recursively, asynchronously, idempotently.
+
+To test a word, delete it and read the sentence again. If only the emphasis
+changed, the word was an intensifier. If the meaning changed, the word carries
+content.
+
+### 3. Support a claim
+
+A comparative claim carries a number. Delete "much faster", "significantly
+smaller", and "a lot cleaner" when no measurement follows.
+
+A claim about verification names the command. Write "`tests/run.sh` passes". Do
+not write "the tests pass".
+
+Prefix a sentence with "UNVERIFIED:" when you did not check. That prefix is the
+only legal hedge.
+
+### 4. Use one term for one concept
+
+Choose one term for each concept and repeat it. Never vary a term for style.
+
+### 5. Never use an em dash
+
+Use a comma, parentheses, a colon, or two sentences. This rule does not cover
+code, string literals, or test fixtures, where the character can be intentional.
+
+## Destinations
+
+| Where the text goes | Which rules apply |
+| --- | --- |
+| A reply in chat | The reply contract below |
+| A file in a repository | `write-technical-content` |
+| A Notion page, task, or comment | `write-notion-content` |
+| A PR title or description | `manage-pr` |
+| A commit message | The repository's own Conventional Commits rule |
+| Anywhere else, such as a shared document | The universal rules alone |
+
+The destination decides the style, never the subject. Invoke the skill in the
+row before you write, then obey it. Two skills conflict on purpose:
+`write-notion-content` cuts the articles, and `write-technical-content` keeps
+them.
+
+A destination skill outranks the chat rules below, and any active terse mode
+governs chat alone.
+
+## A reply in chat
+
+The first sentence carries the answer. When it does not, delete every sentence
+above the answer. Fragments are acceptable.
+
+Write two paragraphs maximum before the status line. A report or a walkthrough
+the user asked for has no cap.
+
+Put evidence, command output, and reasoning above the status line.
+
+Use a bullet list only for three or more parallel items. Put two facts in a
+sentence. Never add a heading to a reply shorter than one screen.
+
+Never repeat what the interface already shows. The file cards report which files
+changed and how many lines changed. Quote the decisive line of command output or
+of a diff, never the whole block. Report what the change means instead.
 
 ### The reply contract
 
@@ -29,32 +132,11 @@ After the token, write the state of the world in one line. Write the state, not
 a list of actions. Write "the branch builds clean, PR 3941 is merged". Do not
 write "committed the fix and verified the tests".
 
-Add a second line that starts with `Ask:` when the user must do something. Omit
-the `Ask:` line when the user must do nothing.
+Add a second line that starts with `FOR YOU:` when the user must do something.
+Omit the `FOR YOU:` line when the user must do nothing.
 
-Never repeat what the interface already shows. The file cards report which files
-changed and how many lines changed. Report what those changes mean instead.
-
-A question belongs on the `Ask:` line. Never put a question or a blocker inside
-a paragraph.
-
-## Prose in a file
-
-This rule covers documents, READMEs, ADRs, `CLAUDE.md`, `AGENTS.md`, code
-comments, and error or log messages. Invoke `write-technical-content` before you
-write the file, then obey that skill.
-
-For a file on disk, `write-technical-content` outranks the brevity rule above.
-It also outranks any active terse mode, because a terse mode governs chat only.
-Keep each sentence under 25 words. Keep the articles. Use one term for each
-concept. Use no idioms.
-
-## Both destinations
-
-Never use an em dash in prose you author, in a PR description, a commit message,
-a Notion page, a document, or chat. Use a comma, parentheses, a colon, or two
-sentences. This rule does not cover code, string literals, or test fixtures,
-where the character can be intentional.
+A question belongs on the `FOR YOU:` line. Never put a question or a blocker
+inside a paragraph.
 
 # Personal skills
 
