@@ -38,7 +38,7 @@ Remediate PR #<n> (<title>) of Desquared/Wave-CXM. Assigned remediation: <merge-
 
 Setup: git -C <checkout-path> fetch origin, then git -C <checkout-path> worktree add ~/src/worktrees/Wave-CXM/babysit-<n> <headRefName>. Work only inside that worktree. Pull before any work: Copilot Autofix commits land directly on remotes.
 
-Follow these documents in the checkout: docs/skills/merge-back.md for conflict mechanics (stash, file-by-file resolution, no -X strategies, pnpm i on lockfile change, never force-push), ~/.claude/skills/address-pr/SKILL.md for the fixing workflow, docs/skills/manage-pr.md for CI policy and check triage.
+Follow these documents in the checkout: docs/skills/merge-back.md for conflict mechanics (stash, file-by-file resolution, no -X strategies, pnpm i on lockfile change, never force-push), and docs/skills/manage-pr.md for CI policy and check triage. Invoke the `address-pr` skill by name for the fixing workflow. Never read it from a path: it ships through a plugin whose path carries a version number.
 
 Before pushing: typecheck the affected projects (nx run <project>:typecheck); never push red. Push with the branch re-verified in the same command:
 [ "$(git rev-parse --abbrev-ref HEAD)" = "<headRefName>" ] && git push origin <headRefName>

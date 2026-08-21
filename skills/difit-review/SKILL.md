@@ -7,11 +7,11 @@ description: Use when the user wants to visually read or review a git diff in a 
 
 Open a diff in [difit](https://github.com/yoshiko-pg/difit), a local GitHub-style "Files changed" viewer, so the user can read code in the browser (e.g. cmux's browser pane) while Claude Code stays in the terminal.
 
-`difit` is installed globally (`difit --version` should print 5.x). If it is missing, tell the user to run `npm install -g difit`; do not auto-install.
+Run `difit --version` first. If the command is missing, tell the user to run `npm install -g difit`; do not auto-install.
 
 ## Pick the target
 
-Map the request to a difit invocation. Default base for branch comparisons is `origin/development`.
+Map the request to a difit invocation. Resolve the base for a branch comparison from `ATIUM_REVIEW_BASE`, and fall back to `origin/development`. The table writes the fallback literally.
 
 | User wants | Command target |
 |---|---|
@@ -50,4 +50,4 @@ If the diff is empty (clean tree, or branch is even with base), say so instead o
 
 ## Shell alias
 
-The user also has a `review` zsh function (in `~/.zshrc`) wrapping the branch-vs-base case: `review [target] [base] [extra flags]`. Mention it if they'd rather launch from their own terminal than through Claude Code.
+The user also has a `review` zsh function (in `~/.config/atium/zsh/functions.zsh`, authored at `dotfiles/dot_config/atium/zsh/functions.zsh`) wrapping the branch-vs-base case: `review [target] [base] [extra flags]`. It reads the base from `ATIUM_REVIEW_BASE`. Mention it if they would rather launch from their own terminal than through Claude Code.

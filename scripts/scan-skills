@@ -58,7 +58,7 @@ ALLOWED_HOSTS = {
     "www.w3.org", "cli.github.com", "webaim.org",
 }
 URL_PATTERN = re.compile(r"https?://([A-Za-z0-9.-]+)")
-ALLOW_PATTERN = re.compile(r"scan-skills:\s*allow\s+([A-Z]\d{3})")
+ALLOW_PATTERN = re.compile(r"scan-skills:\s*allow\s+((?:[A-Z]\d{3}[ ,]*)+)")
 
 # Zero-width and bidirectional-override characters hide text from a human reader
 # while the model still sees it.
@@ -84,9 +84,11 @@ def scan_file(path):
         # A deliberate pattern is annotated on the line, or within the three lines
         # above it so the annotation can sit outside a fenced code block:
         #   <!-- scan-skills: allow S001 the keychain entry is the token source -->
+        # One annotation can list several codes: `allow S001 N001 why`.
         allowed = set()
         for context in lines[max(0, number - 4):number]:
-            allowed |= set(ALLOW_PATTERN.findall(context))
+            for group in ALLOW_PATTERN.findall(context):
+                allowed |= set(re.findall(r"[A-Z]\d{3}", group))
         for severity, code, label, pattern in RULES:
             if code in allowed:
                 continue

@@ -50,7 +50,8 @@ The scanner finds patterns. These need a human decision:
   already installed, remove it, then check whether it ran.
 - **Deliberate pattern** — annotate the line so the scan stays quiet and the
   reason stays visible: `<!-- scan-skills: allow S001 why -->` on the line or
-  within the three lines above it.
+  within the three lines above it. One annotation can list several codes:
+  `allow S001 N001 why`.
 - **Judgement finding** — record it next to the entry in
   `third-party-skills.tsv`, or narrow the skill locally instead of importing it
   whole.

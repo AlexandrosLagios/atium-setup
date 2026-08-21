@@ -29,13 +29,13 @@ Every project goes through this process. A todo list, a single-function utility,
 You MUST create a task for each of these items and complete them in order:
 
 1. **Explore project context** — check files, docs, recent commits
-3. **Ask clarifying questions** — one at a time, each with your recommended answer; interview relentlessly, walking every branch of the design tree until shared understanding (explore the codebase to answer questions yourself wherever possible)
-4. **Propose 2-3 approaches** — with trade-offs and your recommendation
-5. **Present design** — in sections scaled to their complexity, get user approval after each section
-6. **Write design doc** — save to the local spec dir (default `${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/<project>/specs/YYYY-MM-DD-<topic>-design.md`); do NOT commit it (see below)
-7. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-8. **User reviews written spec** — ask user to review the spec file before proceeding
-9. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+2. **Ask clarifying questions** — one at a time, each with your recommended answer; interview relentlessly, walking every branch of the design tree until shared understanding (explore the codebase to answer questions yourself wherever possible)
+3. **Propose 2-3 approaches** — with trade-offs and your recommendation
+4. **Present design** — in sections scaled to their complexity, get user approval after each section
+5. **Write design doc** — save to the local spec dir (default `${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/<project>/specs/YYYY-MM-DD-<topic>-design.md`); do NOT commit it (see below)
+6. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
+7. **User reviews written spec** — ask user to review the spec file before proceeding
+8. **Transition to implementation** — invoke writing-plans skill to create implementation plan
 
 **The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
 
