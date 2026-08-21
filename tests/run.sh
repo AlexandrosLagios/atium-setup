@@ -36,6 +36,9 @@ fi
 if [ -x "$repo_root/tests/agent-cost.test.sh" ]; then
   "$repo_root/tests/agent-cost.test.sh"
 fi
+if [ -x "$repo_root/tests/skill-prose.test.sh" ]; then
+  "$repo_root/tests/skill-prose.test.sh"
+fi
 if [ -x "$repo_root/tests/skill-descriptions.test.sh" ]; then
   "$repo_root/tests/skill-descriptions.test.sh"
 fi

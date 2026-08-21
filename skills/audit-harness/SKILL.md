@@ -1,6 +1,6 @@
 ---
 name: audit-harness
-description: Use when reviewing the coding agent harness itself — skills, hooks, plugins, scheduled routines, settings, and worktrees — or on a scheduled harness-audit run. Finds the drift that fails silently: a plugin serving a stale skill set, a hook injecting context nobody acts on, a routine with no source of truth, a skill duplicated across sources. Not for auditing an imported skill's safety, which is audit-agent-skills.
+description: Use when reviewing the coding agent harness itself (skills, hooks, plugins, scheduled routines, settings, and worktrees), or on a scheduled harness-audit run. Finds the drift that fails silently: a plugin serving a stale skill set, a hook injecting context nobody acts on, a routine with no source of truth, a skill duplicated across sources. Not for auditing an imported skill's safety, which is audit-agent-skills.
 ---
 
 # Auditing the harness
@@ -20,15 +20,15 @@ scripts/audit-harness --repo /path/to/the/repository/you/work/in
 It is read-only and offline. It exits non-zero on a `high` finding. Each check
 exists because that condition was found silently true on a working machine:
 
-- **plugin-drift** — the installed plugin cache does not hold the skills the
+- **plugin-drift**: the installed plugin cache does not hold the skills the
   source does. `scripts/doctor` cannot see this: it compares versions, and
   `claude plugin update` refuses to copy anything while the version matches.
-- **collision** — one skill name offered by two sources.
-- **routine-drift** — scheduled tasks and `routines/` disagree.
-- **hook-noise** — identical hook injections, counted across recent transcripts.
-- **dead-config** — hooks pointing at missing files, permission rules that
+- **collision**: one skill name offered by two sources.
+- **routine-drift**: scheduled tasks and `routines/` disagree.
+- **hook-noise**: identical hook injections, counted across recent transcripts.
+- **dead-config**: hooks pointing at missing files, permission rules that
   cannot match.
-- **worktree** — merged, generated-name, or simply too many worktrees.
+- **worktree**: merged, generated-name, or simply too many worktrees.
 
 ## Then judge what the scan cannot
 
@@ -56,11 +56,11 @@ Prefer deleting. A harness earns its keep by what it stops you re-deriving, and
 every hook, skill, and routine is read or run on a schedule whether or not it
 still applies. When a finding is real:
 
-- **Silently wrong** (stale cache, dead hook path, unregistered routine) — fix
+- **Silently wrong** (stale cache, dead hook path, unregistered routine): fix
   it in the same session; these are cheap and nothing else will catch them.
-- **Expensive and ineffective** — delete it, and record the measurement that
+- **Expensive and ineffective**: delete it, and record the measurement that
   justified the deletion so it does not get rebuilt from the same intuition.
-- **Deliberate** — say so where the next audit will read it, not in a commit
+- **Deliberate**: say so where the next audit will read it, not in a commit
   message.
 
 Report what was changed and what was left, with the numbers behind each call.

@@ -1,6 +1,6 @@
 ---
 name: shape
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Use this in place of any other brainstorming skill. Explores user intent, requirements and design before implementation."
+description: "Use before any creative work: creating a feature, building a component, adding functionality, or modifying behavior. Explores user intent, requirements, and design before implementation, and replaces any other brainstorming skill. Not for a trivial one-liner or a small bugfix that a workflow-altitude rule routes to a direct edit."
 ---
 
 # Shaping Ideas Into Designs
@@ -30,20 +30,20 @@ feature, and a cross-service change.
 
 ## Anti-Pattern: "This Is Too Simple To Need A Design"
 
-Every project that reaches this skill goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
+Every project that reaches this skill goes through this process, including a todo list, a single-function utility, and a config change. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
 
 ## Checklist
 
 You MUST create a task for each of these items and complete them in order:
 
-1. **Explore project context** — check files, docs, recent commits
-2. **Ask clarifying questions** — one at a time, each with your recommended answer; interview relentlessly, walking every branch of the design tree until shared understanding (explore the codebase to answer questions yourself wherever possible)
-3. **Propose 2-3 approaches** — with trade-offs and your recommendation
-4. **Present design** — in sections scaled to their complexity, get user approval after each section
-5. **Write design doc** — save to the local spec dir (default `${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/<project>/specs/YYYY-MM-DD-<topic>-design.md`); do NOT commit it (see below)
-6. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-7. **User reviews written spec** — ask user to review the spec file before proceeding
-8. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+1. **Explore project context**: check files, docs, recent commits
+2. **Ask clarifying questions**: one at a time, each with your recommended answer; interview relentlessly, walking every branch of the design tree until shared understanding (explore the codebase to answer questions yourself wherever possible)
+3. **Propose 2-3 approaches**: with trade-offs and your recommendation
+4. **Present design**: in sections scaled to their complexity, get user approval after each section
+5. **Write design doc**: save to the local spec dir (default `${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/<project>/specs/YYYY-MM-DD-<topic>-design.md`); do NOT commit it (see below)
+6. **Spec self-review**: quick inline check for placeholders, contradictions, ambiguity, scope (see below)
+7. **User reviews written spec**: ask user to review the spec file before proceeding
+8. **Transition to implementation**: invoke writing-plans skill to create implementation plan
 
 **The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
 
@@ -97,7 +97,7 @@ You MUST create a task for each of these items and complete them in order:
   - Default: `${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/<project>/specs/YYYY-MM-DD-<topic>-design.md` (use the repo/project name as `<project>`)
   - If the project's `AGENTS.md`/`CLAUDE.md` specifies a spec/plan location or namespace, follow that instead (e.g. Wave-CXM uses `superpowers/wave-cxm/`).
 - Use the `write-technical-content` skill for the document's prose
-- Do NOT commit the design document — it stays a local artifact outside the repo tree.
+- Do NOT commit the design document: it stays a local artifact outside the repo tree.
 
 **Spec Self-Review:**
 After writing the spec document, look at it with fresh eyes:
@@ -107,7 +107,7 @@ After writing the spec document, look at it with fresh eyes:
 3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
 
-Fix any issues inline. No need to re-review — just fix and move on.
+Fix any issues inline. No need to re-review: fix and move on.
 
 **User Review Gate:**
 After the spec review loop passes, ask the user to review the written spec before proceeding:

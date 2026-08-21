@@ -1,6 +1,6 @@
 ---
 name: difit-review
-description: Use when the user wants to visually read or review a git diff in a GitHub-style local web UI instead of raw diff text — the current branch vs its base, a specific commit, staged/working changes, or a GitHub PR. Launches difit as a background server and hands back the localhost URL.
+description: Use when the user wants to visually read or review a git diff in a GitHub-style local web UI instead of raw diff text: the current branch against its base, a specific commit, staged or working changes, or a GitHub PR. Launches difit as a background server and hands back the localhost URL.
 ---
 
 # difit-review
@@ -22,7 +22,7 @@ Map the request to a difit invocation. Resolve the base for a branch comparison 
 | Staged only / unstaged only | `difit staged` / `difit working` |
 | A GitHub PR | `difit --pr <pr-url>` |
 
-Always use `--merge-base` when comparing a branch against a base — it resolves the true 3-dot diff (only what the branch added), matching the user's review habit. Do not use it for single-commit or `.`/`staged`/`working` modes.
+Always use `--merge-base` when comparing a branch against a base, because it resolves the true 3-dot diff (only what the branch added), matching the user's review habit. Do not use it for single-commit or `.`/`staged`/`working` modes.
 
 ## Launch it (non-blocking)
 
@@ -39,9 +39,9 @@ difit runs a blocking server, so launch it as a **background process** with `--n
    lsof -nP -iTCP -sTCP:LISTEN | grep -i node
    ```
    Find difit's pid (the most recent node listener) and read its port.
-3. Hand the user the URL: **http://localhost:<port>** — tell them to open it in cmux's browser pane or any browser.
+3. Hand the user the URL: **http://localhost:<port>**: tell them to open it in cmux's browser pane or any browser.
 
-If the diff is empty (clean tree, or branch is even with base), say so instead of launching — point them at a meaningful target (e.g. `HEAD~1 HEAD`).
+If the diff is empty (clean tree, or branch is even with base), say so instead of launching, and point them at a meaningful target (e.g. `HEAD~1 HEAD`).
 
 ## Stopping / re-running
 

@@ -66,10 +66,10 @@ Before opening:
 Present a numbered stacked plan, one line per PR, and wait for an answer before opening anything.
 
 ```
-PR1 — permission vocab + schema extension + types (base: development)
-PR2 — validator + errors + DTOs (base: PR1)
-PR3 — service + controller + routes + itests (base: PR2)
-PR4 — remove obsolete script (base: development, independent)
+PR1: permission vocab + schema extension + types (base: development)
+PR2: validator + errors + DTOs (base: PR1)
+PR3: service + controller + routes + itests (base: PR2)
+PR4: remove obsolete script (base: development, independent)
 ```
 
 Order dependent slices so each stacks on the previous. State the base for every entry and mark independent ones. Say in one line whether the slices are strictly sequential or genuinely independent, so the user can weigh rebase cost against smaller diffs.
