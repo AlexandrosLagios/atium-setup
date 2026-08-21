@@ -26,7 +26,7 @@ One maintenance cycle over the user's own open PRs in Desquared/Wave-CXM: unbloc
    4. A check `in_progress` more than 35 minutes past its `startedAt`: presumed nx CT buffer hang, `gh run cancel <run-id>` then `gh run rerun <run-id>`.
    5. APPROVED + MERGEABLE + green gates + non-draft: ready to merge, notify once (see State). If the approval predates the head commit, add "approval may be stale" to its digest line.
 4. **Action at most 2 PRs per cycle.** Only code-changing remediations (3.1 to 3.3) count toward the cap; reruns, notifications, and digest lines are free. When candidates exceed the cap, prefer non-draft PRs (they block reviewers, drafts block only the user), then class priority. Carry the rest, listed in the digest.
-5. **Dispatch one general-purpose subagent per actioned PR** (template below), up to 2 in parallel. With the `inline` argument, do the work directly instead (debugging fallback only).
+5. **Dispatch one general-purpose subagent per actioned PR** (template below), up to 2 in parallel. The catchall is deliberate here, against the `subagents` default: a remediation edits files, runs the package manager, and pushes, so no read-only or planning agent can do it. With the `inline` argument, do the work directly instead (debugging fallback only).
 6. **Digest, state, notify** per the contracts below.
 
 ## Subagent prompt template

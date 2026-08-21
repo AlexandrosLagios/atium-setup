@@ -1,6 +1,6 @@
 ---
 name: graphify
-description: "Use for any question about a codebase, its architecture, file relationships, or project content — especially when graphify-out/ exists, where the question should be treated as a graphify query first. Turns any input (code, docs, papers, images, videos) into a persistent knowledge graph with god nodes, community detection, and query/path/explain tools."
+description: "Use when `graphify-out/graph.json` already exists and the user asks about the codebase, in which case answer the question as a graphify query first. Also use when the user asks to build, update, merge, export, or query a knowledge graph over a folder of code, docs, papers, images, or videos. Turns any input into a persistent graph with god nodes, community detection, and query, path, and explain tools. Not for an ordinary question about code in a repository that has no graph: read the code instead."
 ---
 
 # /graphify
@@ -675,3 +675,16 @@ When the user asks to install the post-commit auto-rebuild hook or wire graphify
 - Always show token cost in the report.
 - Never hide cohesion scores behind symbols - show the raw number.
 - Never run HTML viz on a graph with more than 5,000 nodes without warning the user.
+
+---
+
+## Provenance
+
+Vendored from the `/graphify` skill in
+[Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) by Safi
+Shamsi, dual licensed Apache-2.0 and MIT. See `THIRD-PARTY-NOTICES.md`.
+`.graphify_version` records the upstream version this copy came from.
+
+The copy is deliberate. Two local narrowings ride on it: a description that does
+not fire on every question about a codebase, and a body split under the 500-line
+ceiling. Re-apply both when you bump `.graphify_version`.

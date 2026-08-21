@@ -37,5 +37,5 @@ Never echo a token, and never accept one pasted into chat. If one arrives that w
 ## Local specifics
 
 - Not every domain here is on Cloudflare. Some sit at a Greek registrar, where a missing zone looks identical to a wrong token label. `dig +short NS <zone>` first.
-- Keep `proxied: false` for hosts that terminate their own TLS. The VPS runs Caddy with its own ACME, and an orange cloud silently stops certificate renewal. See the `vps-connection` skill.
+- Keep `proxied: false` for hosts that terminate their own TLS. The VPS runs Caddy with its own ACME, and an orange cloud silently stops certificate renewal.
 - `vlp.gr` sends normal mail through Microsoft 365, so its root SPF belongs to Outlook. Provider records go on a subdomain (`send`), never folded into the root.

@@ -20,9 +20,17 @@ Start by understanding the current project context, then ask questions one at a 
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
 </HARD-GATE>
 
+## Scope
+
+A workflow-altitude rule in `CLAUDE.md` or `AGENTS.md` outranks this skill where
+it sets one. Where that rule routes a trivial one-liner or a small bugfix to a
+direct edit, take the direct edit and do not run this skill. This skill owns the
+tiers that rule leaves to design: a self-contained feature, a large multi-task
+feature, and a cross-service change.
+
 ## Anti-Pattern: "This Is Too Simple To Need A Design"
 
-Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
+Every project that reaches this skill goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
 
 ## Checklist
 
@@ -88,7 +96,7 @@ You MUST create a task for each of these items and complete them in order:
 - Specs, plans, and handoffs are local working artifacts and must NOT be committed to the repo. Write the validated design (spec) under an XDG state directory, namespaced per project:
   - Default: `${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/<project>/specs/YYYY-MM-DD-<topic>-design.md` (use the repo/project name as `<project>`)
   - If the project's `AGENTS.md`/`CLAUDE.md` specifies a spec/plan location or namespace, follow that instead (e.g. Wave-CXM uses `superpowers/wave-cxm/`).
-- Use elements-of-style:writing-clearly-and-concisely skill if available
+- Use the `write-technical-content` skill for the document's prose
 - Do NOT commit the design document — it stays a local artifact outside the repo tree.
 
 **Spec Self-Review:**
