@@ -1,6 +1,6 @@
 ---
 name: cloudflare-dns
-description: Use when a task involves adding, changing, listing, or removing DNS records on a domain whose nameservers are Cloudflare: verifying a domain for a mail or auth provider (Resend, SES, Postmark, Google Workspace), pointing a hostname at a server, editing SPF, DKIM or DMARC, or auditing what a zone currently serves. Applies even when the user never says "Cloudflare" by name, and even when the request is phrased as "add these records" with a block pasted from a provider's dashboard.
+description: "Use when a task involves adding, changing, listing, or removing DNS records on a domain whose nameservers are Cloudflare: verifying a domain for a mail or auth provider (Resend, SES, Postmark, Google Workspace), pointing a hostname at a server, editing SPF, DKIM or DMARC, or auditing what a zone currently serves. Applies even when the user never says \"Cloudflare\" by name, and even when the request is phrased as \"add these records\" with a block pasted from a provider's dashboard."
 ---
 
 # cloudflare-dns

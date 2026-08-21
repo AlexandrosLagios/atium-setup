@@ -3,3 +3,5 @@ trailofbits/skills	variant-analysis,mutation-testing,semgrep-rule-creator	siblin
 vercel-labs/agent-skills	web-design-guidelines	accessibility and UX audit over UI code
 mattpocock/skills	resolving-merge-conflicts	resolve conflicts hunk-by-hunk by intent
 obra/superpowers	dispatching-parallel-agents,finishing-a-development-branch,receiving-code-review,requesting-code-review,subagent-driven-development,systematic-debugging,test-driven-development,using-git-worktrees,verification-before-completion,writing-plans,writing-skills	core spine without the always-on session injection; brainstorming, executing-plans and using-superpowers are excluded on purpose
+github/gh-stack	gh-stack	stacked branches and dependent PRs through the gh CLI extension
+# find-skills arrives with the Skills CLI itself, not from a row here: `npx skills add` installs its own companion skill. Leave it, or it returns on the next install.

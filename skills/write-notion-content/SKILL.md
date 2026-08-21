@@ -1,6 +1,6 @@
 ---
 name: write-notion-content
-description: Use when writing or editing any Notion content: page bodies, task and ticket descriptions, comments, and status updates. Governs how the text reads, not status fields or MCP plumbing. Enforces template adherence, brevity, and lists over prose. For prose that stays in a repository, use write-technical-content instead.
+description: "Use when writing or editing any Notion content: page bodies, task and ticket descriptions, comments, and status updates. Governs how the text reads, not status fields or MCP plumbing. Enforces template adherence, brevity, and lists over prose. For prose that stays in a repository, use write-technical-content instead."
 ---
 
 # write-notion-content

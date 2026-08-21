@@ -1,6 +1,6 @@
 ---
 name: write-technical-content
-description: Use when writing or editing technical documentation: READMEs, API docs, runbooks, ADRs, migration guides, skill and agent instructions, code comments, and error or log messages. Applies ASD-STE100 Simplified Technical English adapted for software, and enforces one instruction per sentence, active voice, present tense, and unambiguous pronouns. Not for commit messages, PR titles or descriptions, or Notion content.
+description: "Use when writing or editing technical documentation: READMEs, API docs, runbooks, ADRs, migration guides, skill and agent instructions, code comments, and error or log messages. Applies ASD-STE100 Simplified Technical English adapted for software, and enforces one instruction per sentence, active voice, present tense, and unambiguous pronouns. Not for commit messages, PR titles or descriptions, or Notion content."
 ---
 
 # write-technical-content

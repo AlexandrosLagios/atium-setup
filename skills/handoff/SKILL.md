@@ -1,8 +1,9 @@
 ---
 name: handoff
-description: Use when compacting the current conversation into a durable brief that a fresh session picks up later, or when asked to write a handoff or a prompt for the next session. Do not use it to reach a session that already runs, which needs a cross-session message, and do not use it to continue this same conversation elsewhere, which needs a session resume.
-argument-hint: "What will the next session be used for?"
+description: Use when compacting the current conversation into a durable brief that a fresh session picks up later, or when asked to write a handoff or a prompt for the next session. Do not use it to reach a session that already runs, which needs a cross-session message, and do not use it to continue this same conversation elsewhere, which needs a session resume. Takes an optional argument that names what the next session focuses on.
 ---
+
+# handoff
 
 Write a handoff document that lets a fresh agent continue the work.
 

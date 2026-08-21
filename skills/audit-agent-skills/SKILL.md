@@ -1,6 +1,6 @@
 ---
 name: audit-agent-skills
-description: Use before trusting an agent skill you did not write: importing one with steal-skills, adding a repository to third-party-skills.tsv, reviewing a teammate's skill or subagent, or auditing a repository's committed .claude/skills tree. Also use when asked whether an installed skill is safe.
+description: "Use before trusting an agent skill you did not write: importing one with steal-skills, adding a repository to third-party-skills.tsv, reviewing a teammate's skill or subagent, or auditing a repository's committed .claude/skills tree. Also use when asked whether an installed skill is safe."
 ---
 
 # Auditing agent skills

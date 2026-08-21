@@ -1,6 +1,6 @@
 ---
 name: difit-review
-description: Use when the user wants to visually read or review a git diff in a GitHub-style local web UI instead of raw diff text: the current branch against its base, a specific commit, staged or working changes, or a GitHub PR. Launches difit as a background server and hands back the localhost URL.
+description: "Use when the user wants to visually read or review a git diff in a GitHub-style local web UI instead of raw diff text: the current branch against its base, a specific commit, staged or working changes, or a GitHub PR. Launches difit as a background server and hands back the localhost URL. Not for performing the review itself, which is code-review: this skill only opens the viewer."
 ---
 
 # difit-review

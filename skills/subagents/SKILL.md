@@ -1,6 +1,6 @@
 ---
 name: subagents
-description: Use when dispatching a subagent or background task. Picks the lightest specialized agent and the cheapest model tier that can do the work well, instead of defaulting to a heavyweight catchall on the top model tier. Portable fallback: prefer the repository's own subagents skill when it ships one.
+description: "Use when dispatching a subagent or background task. Picks the lightest specialized agent and the cheapest model tier that can do the work well, instead of defaulting to a heavyweight catchall on the top model tier. Not for deciding whether to dispatch at all, only which agent and which tier. Portable fallback: prefer the repository's own subagents skill when it ships one."
 ---
 
 # subagents

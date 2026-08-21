@@ -1,6 +1,6 @@
 ---
 name: atium-repository-maintenance
-description: Maintain the Atium setup repository as the single public-safe source for dotfiles and reusable agent skills.
+description: Use when changing this repository's dotfiles, setup scripts, skill installation, plugin wrappers, or public-release safety controls. Keeps the Atium setup repository the single public-safe source for dotfiles and reusable agent skills. Not for authoring the content of a skill, which is creating-personal-skills.
 ---
 
 # Atium repository maintenance

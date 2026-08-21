@@ -1,6 +1,6 @@
 ---
 name: ensure-pr-readiness
-description: Use when verifying a branch or PR is ready to open or undraft, or when asked for a PR-readiness review. Runs the mechanical typecheck and lint gate, a correctness review, a conventions walk over the repository's own rule docs with file:line evidence, conditional escalations, and the affected integration tests, then reports READY or NOT READY. Portable fallback: prefer the repository's own ensure-pr-readiness skill when it ships one.
+description: "Use when verifying a branch or PR is ready to open or undraft, or when asked for a PR-readiness review. Runs the mechanical typecheck and lint gate, a correctness review, a conventions walk over the repository's own rule docs with file:line evidence, conditional escalations, and the affected integration tests, then reports READY or NOT READY. Not for opening the PR or writing its title and description, which is manage-pr. Portable fallback: prefer the repository's own ensure-pr-readiness skill when it ships one."
 ---
 
 # ensure-pr-readiness

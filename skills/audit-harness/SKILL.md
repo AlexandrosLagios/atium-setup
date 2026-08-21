@@ -1,6 +1,6 @@
 ---
 name: audit-harness
-description: Use when reviewing the coding agent harness itself (skills, hooks, plugins, scheduled routines, settings, and worktrees), or on a scheduled harness-audit run. Finds the drift that fails silently: a plugin serving a stale skill set, a hook injecting context nobody acts on, a routine with no source of truth, a skill duplicated across sources. Not for auditing an imported skill's safety, which is audit-agent-skills.
+description: "Use when reviewing the coding agent harness itself (skills, hooks, plugins, scheduled routines, settings, and worktrees), or on a scheduled harness-audit run. Finds the drift that fails silently: a plugin serving a stale skill set, a hook injecting context nobody acts on, a routine with no source of truth, a skill duplicated across sources. Not for auditing an imported skill's safety, which is audit-agent-skills."
 ---
 
 # Auditing the harness

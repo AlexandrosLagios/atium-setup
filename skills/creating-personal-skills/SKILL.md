@@ -24,6 +24,12 @@ Do not author a skill directly in `~/.claude/skills`, `~/.claude/plugins`, or
    - Claude Code loads both kinds through the `atium-claude-skills` plugin.
 5. Run `tests/run.sh`, `scripts/check-secrets`, and
    `scripts/refresh-plugins --dry-run` before committing or deploying.
+6. For a spec and hygiene pass that the repository's own tests do not cover, run
+   `uvx skillscheck skills/`. It reports frontmatter that a strict YAML parser
+   rejects, orphaned reference files, dead markdown links, token budgets, and
+   cross-agent compatibility. Its own code makes no HTTP calls. Treat its
+   description-style opinions as advice: it prefers agent-directed wording where
+   Anthropic's own examples name the user.
 
 ## Editing a description is a behaviour change
 

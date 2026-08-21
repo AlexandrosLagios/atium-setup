@@ -1,6 +1,6 @@
 ---
 name: address-pr
-description: Use when an existing pull request has unresolved review comments and/or failing CI checks that need to be fixed: review feedback to address, checks red, build failing, reviewer asked for changes. Not for creating a PR or editing its title/description.
+description: "Use when an existing pull request has unresolved review comments and/or failing CI checks that need to be fixed: review feedback to address, checks red, build failing, reviewer asked for changes. Not for creating a PR or editing its title/description."
 ---
 
 # Resolve PR feedback

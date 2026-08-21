@@ -1,6 +1,6 @@
 ---
 name: shape
-description: "Use before any creative work: creating a feature, building a component, adding functionality, or modifying behavior. Explores user intent, requirements, and design before implementation, and replaces any other brainstorming skill. Not for a trivial one-liner or a small bugfix that a workflow-altitude rule routes to a direct edit."
+description: "Use when starting any creative work: creating a feature, building a component, adding functionality, or modifying behavior. Explores user intent, requirements, and design before implementation, and replaces any other brainstorming skill. Not for a trivial one-liner or a small bugfix that a workflow-altitude rule routes to a direct edit."
 ---
 
 # Shaping Ideas Into Designs
