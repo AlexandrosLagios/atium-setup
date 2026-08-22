@@ -11,7 +11,8 @@ Write a handoff document that lets a fresh agent continue the work.
 
 A handoff document is for a session that does not exist yet. Two neighbouring cases need a different tool:
 
-- The target session already runs. Send it a message instead. In the desktop app, use `send_message`. In the terminal, use `SendMessage`. Do not write a document.
+- The target session already runs. Send it a message instead. In the desktop app, use `send_message`. In the terminal, use `SendMessage`, or name it with `@<session>` inside a prompt. Do not write a document.
+- The target session is busy and the work can wait for it. Ask for a one-shot notification with `notify_when_idle` and hand the work over when it lands. A document that a live session will read anyway is a document nobody needed.
 - The work continues in the same conversation, in another terminal or another window. Resume or fork the session instead. Do not write a document.
 
 Continue with this skill only when a fresh session must start with curated context.

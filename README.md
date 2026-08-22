@@ -85,6 +85,17 @@ claude plugin install atium-claude-skills@atium-setup
 Run `scripts/refresh-plugins` after changing a skill. Claude Code caches
 plugin content, so reinstall or update its plugin after changing skills.
 
+A file on disk is not a skill a session can see. `scripts/verify-skill-discovery`
+opens one session per agent and reports what each one actually offers, which is
+where discovery fails: Codex shortens skill descriptions that overflow its skills
+context budget, and says so in the session rather than on disk. It costs a model
+call, so it stays out of `tests/run.sh`.
+
+```sh
+scripts/verify-skill-discovery            # both agents
+scripts/verify-skill-discovery --codex    # one arm
+```
+
 ## Third-party skills
 
 `third-party-skills.tsv` declares the skills this machine should have from other

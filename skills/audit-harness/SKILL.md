@@ -52,6 +52,17 @@ The scan counts. These need a decision:
 - **Does a rule contradict the tooling that implements it?** A convention doc
   forbidding something a hook then does automatically means the doc is dead
   letter. Fix the tooling, not the doc.
+- **Is a skill's trigger text arriving intact?** Codex reserves a share of
+  context for skills and shortens descriptions that overflow it, saying so in the
+  session rather than on disk. A shortened description is a trigger that fires
+  nowhere. `scripts/verify-skill-discovery` opens one session per agent and
+  reports both discovery and truncation.
+- **Is a connector still on a supported protocol revision?** The MCP revision of
+  2026-07-28 made the transport stateless, dropped the `Mcp-Session-Id` header,
+  and deprecated three features with a floor of 12 months of support. A server on
+  the new revision may not talk to an older client, and the other way round. Read
+  the connector list, not the roadmap. A connector that fails authentication on
+  every run is dead weight with a login prompt attached.
 - **Has a check been replaced by the platform?** A locally maintained tool that
   duplicates a built-in is pure carrying cost.
 - **Is a scheduled routine still worth its cadence?** Read `lastRunAt`. A

@@ -38,6 +38,14 @@ Pass the tier explicitly. Omit it only when the work genuinely needs top-tier re
 | Architecture or planning | `Plan` |
 | Catchall, last resort | `general-purpose` |
 
+Four defaults changed over July and August 2026, so do not plan around the old
+ones: subagent forking is on by default, a non-teammate agent in an interactive
+session runs in the background by default, concurrency is capped at 20 and
+configurable through `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` alongside a
+spawn-depth limit, and the old 200-per-session ceiling is gone. Background is now
+the normal case: pass a foreground flag only when the next step cannot start
+without the result.
+
 `Agent({ subagent_type: "Explore", model: "sonnet", ... })`. Whatever specialized agents the loaded plugins expose outrank `general-purpose`; check the available-agent list before falling back to it.
 
 Route cross-runtime agents (anything that hands work to a separate model runtime at extra cost) only at a genuine impasse or for an adversarial second opinion on a substantial PR. Not for routine review or quick double-checks.

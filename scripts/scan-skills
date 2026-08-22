@@ -53,6 +53,7 @@ ALLOWED_HOSTS = {
     "developers.cloudflare.com", "www.mongodb.com", "mongodb.com",
     "nx.dev", "skills.sh", "www.skills.sh", "docs.github.com",
     "opensource.org", "semver.org", "keepachangelog.com", "www.conventionalcommits.org",
+    "agentskills.io",
     "en.wikipedia.org", "developer.chrome.com", "playwright.dev", "example.com",
     "api.cloudflare.com", "localhost", "127.0.0.1",
     "www.w3.org", "cli.github.com", "webaim.org",

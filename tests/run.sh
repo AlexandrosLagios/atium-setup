@@ -46,7 +46,7 @@ if [ -x "$repo_root/tests/audit-harness.test.sh" ]; then
   "$repo_root/tests/audit-harness.test.sh"
 fi
 
-for operational_script in agent-cost audit-harness bootstrap check-secrets doctor install-global-guidance install-routines install-third-party refresh-plugins release-skills scan-skills sync-plugin-skills sync-skills; do
+for operational_script in agent-cost audit-harness bootstrap check-secrets doctor install-global-guidance install-routines install-third-party refresh-plugins release-skills scan-skills sync-plugin-skills sync-skills verify-skill-discovery; do
   script_path="$repo_root/scripts/$operational_script"
   if [ ! -x "$script_path" ]; then
     printf 'expected executable script: %s\n' "$script_path" >&2

@@ -1,0 +1,105 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/verify-skill-discovery [--claude|--codex]
+
+Prove that a real session discovers these skills, rather than that the files
+exist. scripts/doctor checks plugin versions and scripts/install-third-party
+--check checks paths; neither opens a session, and a session is where discovery
+fails. Codex was reported dropping ~/.agents/skills after an update, and it
+shortens skill descriptions when they overflow its skills context budget.
+
+This command starts an agent session, so it costs tokens. It is deliberately
+absent from tests/run.sh.
+EOF
+}
+
+arm=both
+case "${1:-}" in
+  "") ;;
+  --claude) arm=claude ;;
+  --codex) arm=codex ;;
+  --help|-h) usage; exit 0 ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+failed=false
+
+if [ "$arm" = both ] || [ "$arm" = claude ]; then
+  if command -v claude >/dev/null 2>&1; then
+    # Copy rather than link: `claude plugin validate` warns that component
+    # directories are read without following symlinks, and plugins/*/skills is a
+    # link to the canonical directory.
+    stage=$(mktemp -d)/plugin
+    mkdir -p "$stage/.claude-plugin"
+    cp "$repo_root/plugins/atium-claude-skills/.claude-plugin/plugin.json" "$stage/.claude-plugin/"
+    cp -R "$repo_root/skills" "$stage/skills"
+
+    # The init event carries the session's slash commands and arrives before the
+    # first model call. `head -1` closes the pipe as soon as it lands.
+    init=$(printf 'ok' | claude -p --bare --plugin-dir "$stage" \
+      --output-format stream-json --verbose 2>/dev/null | head -1 || true)
+
+    missing=''
+    for skill_path in "$repo_root/skills"/*; do
+      [ -d "$skill_path" ] || continue
+      name=$(basename "$skill_path")
+      case "$init" in
+        *"atium-claude-skills:$name"*) ;;
+        *) missing="$missing $name" ;;
+      esac
+    done
+    if [ -n "$missing" ]; then
+      printf 'claude: session did not offer:%s\n' "$missing" >&2
+      failed=true
+    else
+      printf '%s\n' 'claude: every skill is offered in a session'
+    fi
+    rm -rf "$(dirname "$stage")"
+  else
+    printf '%s\n' 'claude: CLI not found, skipped'
+  fi
+fi
+
+if [ "$arm" = both ] || [ "$arm" = codex ]; then
+  if command -v codex >/dev/null 2>&1; then
+    out=$(cd "$repo_root" && codex exec --json --skip-git-repo-check \
+      'List every skill name available to you, one per line, and nothing else.' \
+      2>&1 </dev/null || true)
+
+    missing=''
+    for name in manage-pr write-technical-content creating-personal-skills; do
+      case "$out" in
+        *"$name"*) ;;
+        *) missing="$missing $name" ;;
+      esac
+    done
+    if [ -n "$missing" ]; then
+      printf 'codex: session did not name:%s\n' "$missing" >&2
+      printf '%s\n' 'codex: check ~/.agents/skills discovery and the Codex plugin' >&2
+      failed=true
+    else
+      printf '%s\n' 'codex: the session names the skills it was asked for'
+    fi
+
+    case "$out" in
+      *"skills context budget"*)
+        printf '%s\n' 'codex: descriptions are being shortened to fit the skills context budget' >&2
+        printf '%s\n' 'codex: disable an unused skill or plugin; a trigger cut here fires nowhere' >&2
+        failed=true
+        ;;
+    esac
+  else
+    printf '%s\n' 'codex: CLI not found, skipped'
+  fi
+fi
+
+if [ "$failed" = true ]; then
+  printf '%s\n' 'skill discovery: not confirmed'
+  exit 1
+fi
+printf '%s\n' 'skill discovery: confirmed'
