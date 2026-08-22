@@ -16,15 +16,20 @@ Do not author a skill directly in `~/.claude/skills`, `~/.claude/plugins`, or
    behavior before deployment.
 3. Check for credentials, private endpoints, work-only paths, and platform-only
    tool assumptions. Keep secrets out of the repository.
-4. Classify compatibility:
+4. Never spend a portable skill on a Claude-only convenience. A field outside
+   the six the spec allows (`name`, `description`, `license`, `compatibility`,
+   `metadata`, `allowed-tools`) forces the skill into `skills/.codexignore`, and
+   `tests/skill-descriptions.test.sh` enforces that. A context optimisation such
+   as `context: fork` does not justify losing Codex; a runtime dependency does.
+5. Classify compatibility:
    - Portable: leave it out of `skills/.codexignore` so
      `scripts/sync-plugin-skills` exposes it through the Codex plugin.
    - Claude-only: document the concrete runtime dependency and add its name to
      `skills/.codexignore`.
    - Claude Code loads both kinds through the `atium-claude-skills` plugin.
-5. Run `tests/run.sh`, `scripts/check-secrets`, and
+6. Run `tests/run.sh`, `scripts/check-secrets`, and
    `scripts/refresh-plugins --dry-run` before committing or deploying.
-6. For a spec and hygiene pass that the repository's own tests do not cover, run
+7. For a spec and hygiene pass that the repository's own tests do not cover, run
    `uvx skillscheck skills/`. It reports frontmatter that a strict YAML parser
    rejects, orphaned reference files, dead markdown links, token budgets, and
    cross-agent compatibility. Its own code makes no HTTP calls. Treat its

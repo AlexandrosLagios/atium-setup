@@ -1,6 +1,7 @@
 ---
 name: ensure-pr-readiness
 description: "Use when verifying a branch or PR is ready to open or undraft, or when asked for a PR-readiness review. Runs the mechanical typecheck and lint gate, a correctness review, a conventions walk over the repository's own rule docs with file:line evidence, conditional escalations, and the affected integration tests, then reports READY or NOT READY. Not for opening the PR or writing its title and description, which is manage-pr. Portable fallback: prefer the repository's own ensure-pr-readiness skill when it ships one."
+metadata: {cluster: "pr-lifecycle", siblings: "manage-pr, address-pr, merge-back, babysit-prs"}
 ---
 
 # ensure-pr-readiness
@@ -24,7 +25,7 @@ Pick a tier from the diff before starting. Steps 1 and 5 always run; steps 2 to 
 |------|------|--------------|
 | Small | 5 files or fewer, additive or mechanical, no step-4 trigger: a field threaded through existing layers, a rename, a guard, a constant. | 2 at lowest effort; 3 only for rule docs whose subject changed; skip 4. |
 | Standard | Neither Small nor Deep. | As written. |
-| Deep | A step-4 trigger fires, or the diff spans services, shared contracts, or a published package surface. | As written, at raised effort. |
+| Deep | A step-4 trigger fires, or the diff spans services, shared contracts, or a published package surface. | As written, at raised effort: ultrathink. |
 
 Promote the tier when the diff surprises you. Never demote to dodge a trigger.
 

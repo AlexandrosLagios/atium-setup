@@ -1,6 +1,9 @@
 ---
 name: audit-harness
 description: "Use when reviewing the coding agent harness itself (skills, hooks, plugins, scheduled routines, settings, and worktrees), or on a scheduled harness-audit run. Finds the drift that fails silently: a plugin serving a stale skill set, a hook injecting context nobody acts on, a routine with no source of truth, a skill duplicated across sources. Not for auditing an imported skill's safety, which is audit-agent-skills."
+context: fork
+background: false
+effort: high
 ---
 
 # Auditing the harness
@@ -10,6 +13,10 @@ it was installed at, a hook keeps injecting a paragraph that changes nothing, a
 scheduled task keeps running with no copy in any repository. Every one of those
 looks exactly like a working harness, so the only way to find them is to go
 looking on a schedule.
+
+This skill runs in a forked subagent, so the reading it does never lands in the
+calling conversation. Only the verdict returns. Report the numbers, not the
+files you opened to find them.
 
 ## Run the mechanical scan first
 

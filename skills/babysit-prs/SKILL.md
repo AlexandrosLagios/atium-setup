@@ -1,17 +1,34 @@
 ---
 name: babysit-prs
-description: Use when asked to babysit, tend, or check the health of the user's own open Wave-CXM pull requests, to run a PR maintenance cycle, or when /babysit-prs fires as a recurring loop iteration. Needs a Wave-CXM checkout with gh authenticated as the PR author.
+description: Use when asked to babysit, tend, or check the health of the user's own open Wave-CXM pull requests, to run a PR maintenance cycle, or when /babysit-prs fires as a recurring loop iteration. Needs a Wave-CXM checkout with gh authenticated as the PR author. Not for one PR you are working on right now, which is address-pr.
+disallowed-tools: AskUserQuestion
+allowed-tools: Bash(gh:*) Bash(git:*)
+metadata: {cluster: "pr-lifecycle", siblings: "manage-pr, address-pr, ensure-pr-readiness, merge-back"}
 ---
 
 # Babysit PRs
 
 One maintenance cycle over the user's own open PRs in Desquared/Wave-CXM: unblock what rots (conflicts, red CI, unaddressed review comments), notify what is ready, report the rest. This skill is exactly one cycle; recurrence belongs to /loop. Never plan beyond the current cycle: no standing rules, no all-day watch loops, no scheduled follow-ups.
 
+`AskUserQuestion` is removed from the tool pool while this skill is active. A
+cycle has nobody to ask, so an uncertain item goes to the digest and waits.
+
 **The iron rule: never merge a PR. Not one.** Merging is always the user's click, even when approved, green, unprotected, docs-only, or urgent. A ready PR gets a notification, nothing else.
+
+## Fleet at load time
+
+```!
+gh pr list --author "@me" --state open --json number,title,isDraft,mergeable,reviewDecision,baseRefName,headRefName,statusCheckRollup
+git worktree list
+```
+
+Both commands run before this skill reaches the model, so the fleet above is the
+current one. An error in place of either block means the session is not in a
+Wave-CXM checkout: say so and stop the cycle, rather than working from a guess.
 
 ## Cycle
 
-1. **List:** `gh pr list --author "@me" --state open --json number,title,isDraft,mergeable,reviewDecision,baseRefName,headRefName,statusCheckRollup`, then `git fetch origin` once. Own PRs only: never teammate, Renovate, or Dependabot PRs.
+1. **List:** read the fleet above, then `git fetch origin` once. Own PRs only: never teammate, Renovate, or Dependabot PRs.
 2. **Filter out** (one digest line each, with reason):
    - head pushed within the last 2 hours, any author (`git log -1 --format=%cI origin/<headRefName>`): the user may be mid-work on it
    - parked in state (2 strikes, see State)

@@ -1,6 +1,7 @@
 ---
 name: merge-back
 description: "Use when the user asks to merge a base branch (typically `development` or `main`) back into the current feature branch and push. Handles stash, conflict resolution, post-merge install, typecheck, and push. Not for a rebase, and not for a merge that is already in progress and conflicted, which is resolving-merge-conflicts. Portable fallback: prefer the repository's own merge-back skill when it ships one."
+metadata: {cluster: "pr-lifecycle", siblings: "manage-pr, address-pr, ensure-pr-readiness, babysit-prs"}
 ---
 
 # merge-back
