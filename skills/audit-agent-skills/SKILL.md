@@ -6,9 +6,12 @@ description: "Use before trusting an agent skill you did not write: importing on
 # Auditing agent skills
 
 A skill runs with full agent permissions and its text is instructions, so an
-imported skill is a supply-chain dependency, not documentation. Snyk's February
-2026 sweep of 3,984 published skills found 13.4% with a critical issue and 91%
-of the confirmed malicious ones working through prompt injection.
+imported skill is a supply-chain dependency, not documentation. Snyk's ToxicSkills
+sweep of 3,984 published skills, February 2026, found 534 (13.4%) with a critical
+issue, 1,467 (36.8%) with an issue of any severity, and 91% of the confirmed
+malicious ones working through prompt injection. Every confirmed malicious skill
+paired a code payload with an injected instruction, so a scan of one layer is half
+a scan.
 
 Audit before the skill is installed, before it is committed, and before it is
 recommended to anyone else.
@@ -77,3 +80,16 @@ isolation only hold together. A critical finding still means do not install.
 
 `scripts/release-skills` runs the scan, so an authored skill cannot ship with an
 unannotated high finding.
+
+## Where this check is heading
+
+Two developments to weigh before the scanner grows another rule:
+
+- `scripts/scan-skills` is a flat rule list. SkillSieve (arXiv 2604.06550)
+  proposes hierarchical triage for the same job: cheap filters first, expensive
+  judgement only on what survives. That is the shape to copy if the rule list
+  keeps growing.
+- Snyk and Tessl announced scanning at the registry, so an installed skill may
+  arrive already scanned. When that lands, this skill's mechanical half is
+  duplicated work, and `audit-harness` asks exactly that question: has a local
+  check been replaced by the platform?

@@ -5,6 +5,25 @@ description: Use when creating, importing, or adapting a personal Claude or Code
 
 # Creating personal skills
 
+## First ask whether it should exist
+
+SkillsBench measured curated skills lifting agent success from 33.9% to 50.5%
+across 84 verifiable tasks, an average of 16.2 points. The gain is not evenly
+spread: healthcare gained 51.9 points and manufacturing 41.9, while software
+engineering gained 4.5 and mathematics 6.0. A model already knows this domain
+well, so procedural guidance buys less here than the headline suggests.
+
+Two consequences for this repository:
+
+- Prefer merging or deleting to adding. Every skill's description is preloaded in
+  every session, and Codex shortens descriptions once they overflow its budget, so
+  a weak skill degrades the strong ones rather than sitting quietly beside them.
+- Keep a skill focused. The same study found skills of at most three modules
+  outperforming larger or exhaustive bundles.
+
+Self-generated skills gave negligible or negative benefit in that study, and
+curated ones gave the whole 16.2. The curation is the value.
+
 Create every personal skill in `skills/<kebab-case-name>/` in this repository.
 Do not author a skill directly in `~/.claude/skills`, `~/.claude/plugins`, or
 `~/.codex/skills`: those paths are generated deployment state.

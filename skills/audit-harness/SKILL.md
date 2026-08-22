@@ -72,7 +72,9 @@ The scan counts. These need a decision:
 
 Prefer deleting. A harness earns its keep by what it stops you re-deriving, and
 every hook, skill, and routine is read or run on a schedule whether or not it
-still applies. When a finding is real:
+still applies. SkillsBench puts the average lift from curated skills at 16.2
+points, and 4.5 in software engineering, so a marginal skill here is closer to a
+cost than to a win. When a finding is real:
 
 - **Silently wrong** (stale cache, dead hook path, unregistered routine): fix
   it in the same session; these are cheap and nothing else will catch them.
