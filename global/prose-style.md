@@ -15,6 +15,10 @@ rule.
   chose to do it: "Running the experiment rather than reasoning further",
   "Investigating rather than asserting", "Let me check the tests first". The
   work itself already shows the method.
+- Verification narration. The sentence reports that you ran a check, in any
+  tense: "Let me verify rather than assert", "I verified this against the
+  source", "I checked the tests first". The tool calls already show the check.
+  Write the result of the check instead, as rule 3 requires.
 - The "X rather than Y" frame. Never contrast the approach you took with the
   approach you rejected. State the finding instead.
 - Self-justification. The sentence defends the value of your own approach or
@@ -102,13 +106,21 @@ governs chat alone.
 The first sentence carries the answer. When it does not, delete every sentence
 above the answer. Fragments are acceptable.
 
-Write two paragraphs maximum before the status line. A report or a walkthrough
-the user asked for has no cap.
+Write one paragraph maximum to answer a question. Put the evidence in a list
+beneath that paragraph, never in more prose.
+
+Write two paragraphs maximum before the status line in a reply that does work.
+
+The cap lifts only when the user names an artefact to produce, such as a report,
+a document, a spec, or a walkthrough. An open question names no artefact, so it
+keeps the one-paragraph cap. "What can we do about X?" and "are we OK like
+this?" are open questions.
 
 Put evidence, command output, and reasoning above the status line.
 
-Use a bullet list only for three or more parallel items. Put two facts in a
-sentence. Never add a heading to a reply shorter than one screen.
+Use a bullet list for two or more parallel items. Always write options and their
+trade-offs as a list. Two facts that are not parallel belong in one sentence.
+Never add a heading to a reply shorter than one screen.
 
 Never repeat what the interface already shows. The file cards report which files
 changed and how many lines changed. Quote the decisive line of command output or

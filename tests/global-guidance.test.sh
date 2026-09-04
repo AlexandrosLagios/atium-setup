@@ -73,6 +73,9 @@ fi
 
 grep -qx 'keep me' "$conflict_home/AGENTS.md"
 
+# The chat rules cap a reply that only answers a question.
+grep -q 'one paragraph maximum to answer a question' "$source_prose"
+
 # The prose rules state the reply contract that both agents read.
 grep -q 'DONE' "$source_prose"
 grep -q 'BLOCKED' "$source_prose"

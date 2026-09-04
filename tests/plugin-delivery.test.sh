@@ -7,6 +7,10 @@ codex_dir="$repo_root/plugins/atium-skills/skills"
 claude_dir="$repo_root/plugins/atium-claude-skills/skills"
 exclude_file="$source_dir/.codexignore"
 
+# The Codex wrapper skills are generated and git-ignored, so a fresh checkout
+# has nothing to verify until the generator runs.
+"$repo_root/scripts/sync-plugin-skills" >/dev/null
+
 [ -d "$codex_dir" ]
 [ ! -L "$codex_dir" ]
 [ -L "$claude_dir" ]
