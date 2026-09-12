@@ -1,20 +1,13 @@
 ---
 name: shape
-description: "Use when starting any creative work: creating a feature, building a component, adding functionality, or modifying behavior. Explores user intent, requirements, and design before implementation, and replaces any other brainstorming skill. Not for a trivial one-liner or a small bugfix that a workflow-altitude rule routes to a direct edit."
+description: "Use when the user invokes /shape, or when the workflow-altitude rule names shape for a feature tier, and never otherwise. Turns a spike document into an approved design and a spec, then hands off to writing-plans. Never triggers on brainstorming, research, or weighing-options wording, which is spike."
 ---
 
-# Shaping Ideas Into Designs
+# Shaping a spike into a design
 
-Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
-
-Interview me relentlessly about every aspect of the idea until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
-In addition to design questions, you must ask me questions about context you don't have access to.
-
-Ask the questions one at a time, waiting for feedback on each question before continuing.
-
-If a question can be answered by exploring the codebase, explore the codebase instead.
-
-Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
+Turn a spike document into an approved design and a spec through collaborative
+dialogue. The interview and the approaches live in `spike`. This skill starts
+where that document ends.
 
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
@@ -28,50 +21,41 @@ direct edit, take the direct edit and do not run this skill. This skill owns the
 tiers that rule leaves to design: a self-contained feature, a large multi-task
 feature, and a cross-service change.
 
-## Anti-Pattern: "This Is Too Simple To Need A Design"
+## Input
 
-Every project that reaches this skill goes through this process, including a todo list, a single-function utility, and a config change. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
+The argument is the path to a spike document. Without an argument, offer the
+newest document under the project's spike directory, and ask whether that
+document is the input:
+
+```sh
+ls -t "${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")/spikes" 2>/dev/null | grep -- '-spike.md$' | head -1
+```
+
+Without any document, invoke `spike`, and resume from the document it writes.
+
+Read the Decisions, Approaches, and Open questions sections. Never ask again
+what the document settles. When the design opens a question the document does
+not settle, ask that question alone, with a recommended answer, and wait for
+the reply.
 
 ## Checklist
 
 You MUST create a task for each of these items and complete them in order:
 
-1. **Explore project context**: check files, docs, recent commits
-2. **Ask clarifying questions**: one at a time, each with your recommended answer; interview relentlessly, walking every branch of the design tree until shared understanding (explore the codebase to answer questions yourself wherever possible)
-3. **Propose 2-3 approaches**: with trade-offs and your recommendation
-4. **Present design**: in sections scaled to their complexity, get user approval after each section
-5. **Write design doc**: save to the local spec dir (default `${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/<project>/specs/YYYY-MM-DD-<topic>-design.md`); do NOT commit it (see below)
-6. **Spec self-review**: quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-7. **User reviews written spec**: ask user to review the spec file before proceeding
-8. **Transition to implementation**: invoke writing-plans skill to create implementation plan
+1. **Read the spike document**: Decisions, Approaches, Open questions
+2. **Present design**: in sections scaled to their complexity, get user approval after each section
+3. **Write design doc**: save to the local spec dir (default `${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/<project>/specs/YYYY-MM-DD-<topic>-design.md`); do NOT commit it (see below)
+4. **Spec self-review**: quick inline check for placeholders, contradictions, ambiguity, scope (see below)
+5. **User reviews written spec**: ask user to review the spec file before proceeding
+6. **Transition to implementation**: invoke writing-plans skill to create implementation plan
 
-**The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
+**The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after the design is writing-plans.
 
 ## The Process
 
-**Understanding the idea:**
-
-- Check out the current project state first (files, docs, recent commits)
-- Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
-- If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
-- For appropriately-scoped projects, interview the user relentlessly: walk down each branch of the design tree, resolving dependencies between decisions one at a time, until you reach a shared understanding of the whole plan
-- If a question can be answered by exploring the codebase, explore it and answer it yourself instead of asking the user
-- Provide your recommended answer with every question, along with brief reasoning
-- Prefer multiple choice questions when possible, but open-ended is fine too
-- Only one question per message - if a topic needs more exploration, break it into multiple questions
-- Focus on understanding: purpose, constraints, success criteria
-
-**Exploring approaches:**
-
-- Propose 2-3 different approaches with trade-offs.
-- Present options conversationally with your recommendation and reasoning
-- Lead with your recommended option and explain why.
-- If you're unsure, make open-ended questions instead.
-- Be relentless, ask as many questions as it takes to be sure of the final design.
-
 **Presenting the design:**
 
-- Once you are sure you understand what you're building, present the design
+- Design the approach the spike document recommends, unless the user picked another one there
 - Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced
 - Ask after each section whether it looks right so far
 - Cover: architecture, components, data flow, error handling, testing
@@ -96,6 +80,7 @@ You MUST create a task for each of these items and complete them in order:
 - Specs, plans, and handoffs are local working artifacts and must NOT be committed to the repo. Write the validated design (spec) under an XDG state directory, namespaced per project:
   - Default: `${XDG_STATE_HOME:-$HOME/.local/state}/superpowers/<project>/specs/YYYY-MM-DD-<topic>-design.md` (use the repo/project name as `<project>`)
   - If the project's `AGENTS.md`/`CLAUDE.md` specifies a spec/plan location or namespace, follow that instead (e.g. Wave-CXM uses `superpowers/wave-cxm/`).
+- Cite the spike document by path. Do not restate its Decisions or Approaches.
 - Use the `write-technical-content` skill for the document's prose
 - Do NOT commit the design document: it stays a local artifact outside the repo tree.
 
@@ -123,12 +108,6 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 ## Key Principles
 
-- **One question at a time** - Don't overwhelm with multiple questions
-- **Recommend an answer** - Provide your recommended answer with every question
-- **Relentless until resolved** - Walk every branch of the design tree, resolving dependencies one by one, until you reach shared understanding
-- **Explore before asking** - If a question can be answered from the codebase, answer it yourself instead of asking
-- **Multiple choice preferred** - Easier to answer than open-ended when possible
 - **YAGNI ruthlessly** - Remove unnecessary features from all designs
-- **Explore alternatives** - Always propose 2-3 approaches before settling
 - **Incremental validation** - Present design, get approval before moving on
 - **Be flexible** - Go back and clarify when something doesn't make sense

@@ -39,8 +39,8 @@ ask me first. After you finish a large set of tasks, run one final
 When asked to write a prompt or a handoff for the next session, use the
 `handoff` skill instead of free-form prose. The document then stays structured
 and resumable. To resume from a pasted handoff, no skill is necessary: read the
-handoff and continue, or route into `shape` when the next step is creative
-design.
+handoff and continue. Route into `spike` when the next step is research, and
+into `/shape` when a spike document already exists.
 
 ## Workflow altitude (match ceremony to task size)
 
@@ -48,6 +48,9 @@ The full spine (shape, writing-plans, subagent-driven-development, review,
 finishing) is for large work. The whole spine on a change of 1 to 3 files is
 pure ceremony. Route by size:
 
+- **Understanding or a decision, code optional** (research, investigate,
+  brainstorm, "should we", "how would we"): run `spike`. It ends at a spike
+  document. No shape, no plan, no code.
 - **Trivial one-liner** (rename, log key, constant, guard): no chain. Direct
   edit plus the one filtered test that covers the change. No shape, no plan, no
   subagents.
@@ -92,9 +95,10 @@ edit, and use native CI and `/code-review` as the downstream gate.
 
 ## Brainstorming
 
-Always use the `shape` skill for brainstorming and creative-design exploration.
-`shape` replaces any other brainstorming skill, including wherever another flow
-tells you to invoke one.
+Always use the `spike` skill for brainstorming, research, and weighing options.
+`spike` replaces any other brainstorming skill, including wherever another flow
+tells you to invoke one. `shape` runs only as `/shape` or through the workflow
+altitude rule above, and it runs `spike` itself when no spike document exists.
 
 ## RTK
 

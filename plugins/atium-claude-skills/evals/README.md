@@ -43,6 +43,17 @@ Measured on 2026-08-22, Claude Code 2.1.237:
   proven gap in interactive sessions, which is where these skills are actually
   used, and which this runner cannot reach.
 
+Measured on 2026-09-12, Claude Code 2.1.269, with the installed plugin
+disabled so the staged working tree was the only copy of `shape`:
+
+- `spike-brainstorm` fires `spike` and not `shape`.
+- `spike-one-read` fires nothing, which is the intended outcome.
+- `shape-feature` fires nothing. The same prompt against the previous `shape`
+  description (0.6.0) also fires nothing, and both sessions wrote a plan file
+  from first principles. That is the `pr-open-new` finding again: a headless
+  session does not apply the workflow-altitude rule, so the case measures
+  interactive routing only when the real harness runs it.
+
 ## Why the runner works the way it does
 
 - **It runs in a throwaway git fixture, never in this repository.** Inside the
