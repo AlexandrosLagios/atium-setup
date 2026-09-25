@@ -1,6 +1,6 @@
 ---
 name: steal-skills
-description: Use when porting skills, convention docs, or agent config from one repository into another - "steal the skills from repo X", "copy the conventions from Y", "adapt their docs for this project", or when setting up a new repo by cribbing from an established one. Enforces profiling the target codebase before adapting, so imported rules describe the target's reality rather than the source's.
+description: Use when porting skills, convention docs, or agent config from one repository into another - "steal the skills from repo X", "copy the conventions from Y", "adapt their docs for this project", or when setting up a new repo by cribbing from an established one. Also use to adjust a project's skills from the atium-setup personal skills ("adjust the skills we need from atium-setup here"). Enforces profiling the target codebase before adapting, so imported rules describe the target's reality rather than the source's.
 ---
 
 # steal-skills
@@ -85,6 +85,15 @@ If the target repo is a worktree without `node_modules`, run the check in the ma
 Tell the user what you did **not** take and why, as a table. The skip reasoning is the most reviewable part of the work: it is where your judgement is visible and where a wrong call is cheapest to correct. Burying it loses the one thing they can meaningfully check.
 
 Flag any rule you *invented* (one not present in the source and not directly evidenced in the target) separately and explicitly, so they can veto it.
+
+## Source: the atium-setup personal skills
+
+When the source is this repository's `skills/`, the target already loads every personal skill through the plugin. Copy nothing that works unchanged from the plugin. The work is the repository-local override:
+
+- A skill whose description says "Portable fallback: prefer the repository's own X skill" (`ensure-pr-readiness`, `manage-pr`, `merge-back`) is the only kind that earns a copy in the target's `.claude/skills/`. Write the copy only when the target has concrete gates, base branch, or escalations to fill in. Otherwise the fallback already resolves them at run time.
+- When the target already ships its own copy, diff it against the current fallback and against the target's `AGENTS.md`. Drift, such as a copy written for an app that is now on hold, is the usual finding.
+- Every other skill is a skip. Report it in the skip table as "served by the plugin".
+- Open one PR in the target for the adapted copies, and a separate PR here when the run exposed a gap in a fallback skill.
 
 ## Don'ts
 
