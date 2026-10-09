@@ -49,7 +49,7 @@ if [ "$arm" = both ] || [ "$arm" = claude ]; then
       [ -d "$skill_path" ] || continue
       name=$(basename "$skill_path")
       case "$init" in
-        *"atium-claude-skills:$name"*) ;;
+        *"atium-skills:$name"*) ;;
         *) missing="$missing $name" ;;
       esac
     done

@@ -64,8 +64,12 @@ scripts/install-global-guidance
 
 ### Plugin delivery
 
-Codex receives portable skills through `atium-skills`; Claude Code receives
-all skills through `atium-claude-skills`. Both wrappers are generated from the
+Codex and Claude Code each install a plugin named `atium-skills`. Codex
+receives the portable skills, and Claude Code receives all skills. The Claude
+wrapper lives in `plugins/atium-claude-skills`, because the Codex wrapper owns
+`plugins/atium-skills`. Do not put "claude" in the plugin name:
+`claude plugin validate --strict` rejects a name that reads as one of
+Anthropic's own. Both wrappers are generated from the
 canonical `skills/` directory: the Claude one links it, and the Codex one holds
 git-ignored copies, because `codex plugin add` snapshots a plugin without
 following symlinks and a linked skill installs as nothing.
@@ -79,7 +83,7 @@ codex plugin add atium-skills@personal
 
 # Claude Code
 claude plugin marketplace add "$(git rev-parse --show-toplevel)"
-claude plugin install atium-claude-skills@atium-setup
+claude plugin install atium-skills@atium-setup
 ```
 
 Run `scripts/refresh-plugins` after changing a skill. Claude Code caches

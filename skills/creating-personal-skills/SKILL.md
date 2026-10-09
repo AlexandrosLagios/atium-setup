@@ -47,7 +47,7 @@ Do not author a skill directly in `~/.claude/skills`, `~/.claude/plugins`, or
      `scripts/sync-plugin-skills` exposes it through the Codex plugin.
    - Claude-only: document the concrete runtime dependency and add its name to
      `skills/.codexignore`.
-   - Claude Code loads both kinds through the `atium-claude-skills` plugin.
+   - Claude Code loads both kinds through the `atium-skills` plugin.
 7. Run `tests/run.sh`, `scripts/check-secrets`, and
    `scripts/refresh-plugins --dry-run` before committing or deploying.
 8. For a spec and hygiene pass that the repository's own tests do not cover, run

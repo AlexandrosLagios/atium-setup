@@ -38,7 +38,7 @@ grep -Fq '"source": "./plugins/atium-claude-skills"' "$repo_root/.claude-plugin/
 grep -Fq '"path": "./plugins/atium-skills"' "$repo_root/.agents/plugins/marketplace.json"
 expected_version=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["version"])' "$repo_root/plugins/atium-skills/.codex-plugin/plugin.json")
 claude_version=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["version"])' "$repo_root/plugins/atium-claude-skills/.claude-plugin/plugin.json")
-marketplace_version=$(python3 -c 'import json, sys; print(next(p["version"] for p in json.load(open(sys.argv[1]))["plugins"] if p["name"] == "atium-claude-skills"))' "$repo_root/.claude-plugin/marketplace.json")
+marketplace_version=$(python3 -c 'import json, sys; print(next(p["version"] for p in json.load(open(sys.argv[1]))["plugins"] if p["name"] == "atium-skills"))' "$repo_root/.claude-plugin/marketplace.json")
 [ "$expected_version" = "$claude_version" ]
 [ "$expected_version" = "$marketplace_version" ]
 printf '%s\n' 'plugin delivery checks passed'

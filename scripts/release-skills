@@ -41,11 +41,11 @@ for path in (codex_path, claude_path):
 
 marketplace = json.loads(marketplace_path.read_text())
 for plugin in marketplace["plugins"]:
-    if plugin["name"] == "atium-claude-skills":
+    if plugin["name"] == "atium-skills":
         plugin["version"] = version
         break
 else:
-    raise SystemExit("atium-claude-skills is missing from the Claude marketplace")
+    raise SystemExit("atium-skills is missing from the Claude marketplace")
 marketplace_path.write_text(json.dumps(marketplace, indent=2) + "\n")
 PY
 
