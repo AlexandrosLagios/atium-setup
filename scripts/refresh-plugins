@@ -51,10 +51,13 @@ if command -v claude >/dev/null 2>&1; then
   if ! claude plugin marketplace list 2>&1 | grep -F 'atium-setup' >/dev/null; then
     claude plugin marketplace add "$repo_root"
   fi
-  if claude plugin details atium-claude-skills@atium-setup >/dev/null 2>&1; then
-    claude plugin update atium-claude-skills@atium-setup
+  if claude plugin list 2>&1 | grep -F 'atium-claude-skills@atium-setup' >/dev/null; then
+    claude plugin uninstall atium-claude-skills@atium-setup
+  fi
+  if claude plugin details atium-skills@atium-setup >/dev/null 2>&1; then
+    claude plugin update atium-skills@atium-setup
   else
-    claude plugin install atium-claude-skills@atium-setup
+    claude plugin install atium-skills@atium-setup
   fi
   claude plugin validate "$repo_root" --strict
   printf '%s\n' 'Claude plugin is installed or refreshed'

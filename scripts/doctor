@@ -68,7 +68,7 @@ else
   missing=true
 fi
 
-if command -v claude >/dev/null 2>&1 && claude plugin details atium-claude-skills@atium-setup 2>&1 | grep -Fq "atium-claude-skills $expected_version"; then
+if command -v claude >/dev/null 2>&1 && claude plugin details atium-skills@atium-setup 2>&1 | grep -Fq "atium-skills $expected_version"; then
   printf '%s\n' "Claude plugin: installed at version $expected_version"
 else
   printf '%s\n' "Claude plugin: not confirmed at version $expected_version"
