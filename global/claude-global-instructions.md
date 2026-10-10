@@ -39,43 +39,44 @@ ask me first. After you finish a large set of tasks, run one final
 When asked to write a prompt or a handoff for the next session, use the
 `handoff` skill instead of free-form prose. The document then stays structured
 and resumable. To resume from a pasted handoff, no skill is necessary: read the
-handoff and continue. Route into `spike` when the next step is research, and
-into `/shape` when a spike document already exists.
+handoff and continue. Route into `spike` when the next step is research or a
+design.
 
 ## Workflow altitude (match ceremony to task size)
 
-The full spine (shape, writing-plans, subagent-driven-development, review,
-finishing) is for large work. The whole spine on a change of 1 to 3 files is
-pure ceremony. Route by size:
+The full spine (spike with its design, writing-plans,
+subagent-driven-development, review, finishing) is for large work. The whole
+spine on a change of 1 to 3 files is pure ceremony. Route by size:
 
 - **Understanding or a decision, code optional** (research, investigate,
   brainstorm, "should we", "how would we"): run `spike`. It ends at a spike
-  document. No shape, no plan, no code.
+  document. No design, no plan, no code.
 - **Trivial one-liner** (rename, log key, constant, guard): no chain. Direct
-  edit plus the one filtered test that covers the change. No shape, no plan, no
+  edit plus the one filtered test that covers the change. No design, no plan, no
   subagents.
 - **Small bugfix (1 to 3 files)**: use `systematic-debugging` only when the
   cause is not obvious. Otherwise apply a direct fix, a regression test, and the
   filtered tests. Let CI and a quick `/code-review` be the review. Do not create
-  an in-session reviewer subagent. No shape, no plan, no subagent-driven
+  an in-session reviewer subagent. No design, no plan, no subagent-driven
   development.
-- **Single self-contained feature (3 to 10 files, one PR)**: run `shape` for
-  real design intent, then implement in-session with the matching domain skill
-  and TDD. Skip `writing-plans` unless real ordering or unknowns exist. Skip
-  subagent-driven-development, because one task has nothing to parallelize.
+- **Single self-contained feature (3 to 10 files, one PR)**: run `spike` through
+  its design for real design intent, then implement in-session with the matching
+  domain skill and TDD. Skip `writing-plans` unless real ordering or unknowns
+  exist. Skip subagent-driven-development, because one task has nothing to
+  parallelize.
   Close with `/code-review` and `/simplify`. Then open or undraft the PR with
   `manage-pr`, never with `gh pr create` by hand. `manage-pr` runs the
   `ensure-pr-readiness` gate, which `/code-review` and `/simplify` do not
   replace.
-- **Large multi-task feature**: the full chain is essential. Run shape,
-  writing-plans, worktree, subagent-driven-development (or a Workflow for
-  deterministic parallel orchestration), a final whole-branch review, and
+- **Large multi-task feature**: the full chain is essential. Run spike with its
+  design, writing-plans, worktree, subagent-driven-development (or a Workflow
+  for deterministic parallel orchestration), a final whole-branch review, and
   finishing. Do not down-tier.
 - **Cross-service or shared-contract change**: as above, plus
   `daisy:breaking-change-detector`, an ADR when the change is architectural, and
   `/security-review` when the change touches auth or PII.
 
-The default failure mode is to reach for shape, writing-plans, or
+The default failure mode is to reach for spike, writing-plans, or
 subagent-driven-development on small work. Prefer a domain skill or a direct
 edit, and use native CI and `/code-review` as the downstream gate.
 
@@ -97,8 +98,7 @@ edit, and use native CI and `/code-review` as the downstream gate.
 
 Always use the `spike` skill for brainstorming, research, and weighing options.
 `spike` replaces any other brainstorming skill, including wherever another flow
-tells you to invoke one. `shape` runs only as `/shape` or through the workflow
-altitude rule above, and it runs `spike` itself when no spike document exists.
+tells you to invoke one.
 
 ## RTK
 
