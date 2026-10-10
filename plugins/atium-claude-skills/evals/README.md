@@ -54,6 +54,17 @@ disabled so the staged working tree was the only copy of `shape`:
   session does not apply the workflow-altitude rule, so the case measures
   interactive routing only when the real harness runs it.
 
+On 2026-10-10, `shape` merged into `spike`. The `shape-feature` case is now
+`spike-feature`, and no case forbids `shape` any longer. Measured on the same
+day, Claude Code 2.1.296, with the installed 0.8.0 plugin loaded next to the
+working tree:
+
+- `spike-brainstorm` fires `spike` and not `writing-plans`.
+- `spike-one-read` and `trivial-edit` fire nothing, which is the intended
+  outcome.
+- `spike-feature` fires nothing. That is the `shape-feature` finding again: a
+  headless session does not apply the workflow-altitude rule.
+
 ## Why the runner works the way it does
 
 - **It runs in a throwaway git fixture, never in this repository.** Inside the
