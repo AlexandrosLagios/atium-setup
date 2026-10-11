@@ -11,26 +11,22 @@ You already know the API. What you cannot guess is where the token lives.
 
 ## Token
 
-One Keychain item per Cloudflare account, service `cloudflare-dns-token`, account label per account:
+One `secrets` item per Cloudflare account, named `cloudflare-<label>-dns-token`:
 
-| Label | Zones |
-|---|---|
-| `vlp` | `vlp.gr` |
+| Label | Secret | Zones |
+|---|---|---|
+| `vlp` | `cloudflare-vlp-dns-token` | `vlp.gr` |
 
-Read it inside the same command that uses it. Each Bash call is a fresh shell, so a token exported in an earlier call is already gone. Chain "read token, resolve zone, act" as one command:
+Read it with `with-secret` inside the same command that uses it. Each Bash call is a fresh shell, so a token exported in an earlier call is already gone. Chain "read token, resolve zone, act" as one single-quoted command:
 
-<!-- scan-skills: allow S001 N001 the keychain entry is this skill's documented token source -->
+<!-- scan-skills: allow N001 the Cloudflare API is this skill's documented endpoint -->
 ```bash
-TOKEN=$(security find-generic-password -s cloudflare-dns-token -a vlp -w) && ZONE=$(curl -s -H "Authorization: Bearer $TOKEN" "https://api.cloudflare.com/client/v4/zones?name=vlp.gr" | jq -r '.result[0].id') && curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE/dns_records" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"type":"TXT","name":"send","content":"v=spf1 include:amazonses.com ~all","ttl":1}' | jq '{success, errors: [.errors[]?.message]}'
+with-secret TOKEN=cloudflare-vlp-dns-token -- 'ZONE=$(curl -s -H "Authorization: Bearer $TOKEN" "https://api.cloudflare.com/client/v4/zones?name=vlp.gr" | jq -r ".result[0].id") && curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE/dns_records" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "{\"type\":\"TXT\",\"name\":\"send\",\"content\":\"v=spf1 include:amazonses.com ~all\",\"ttl\":1}" | jq "{success, errors: [.errors[]?.message]}"'
 ```
 
 Fall back to `$CLOUDFLARE_API_TOKEN` where `security` does not exist (Linux, CI). Print `success` and `errors`, since Cloudflare returns HTTP 200 with `"success": false`.
 
-New account? The user runs this themselves so the value never reaches a transcript, then add the label to the table above:
-
-```bash
-security add-generic-password -s cloudflare-dns-token -a <label> -w
-```
+New account? The user runs `secret-set cloudflare-<label>-dns-token` themselves so the value never reaches a transcript, then add the label to the table above.
 
 Never echo a token, and never accept one pasted into chat. If one arrives that way, tell them to store it in the Keychain instead.
 

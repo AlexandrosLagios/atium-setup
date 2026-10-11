@@ -45,6 +45,8 @@ fi
 if [ -x "$repo_root/tests/audit-harness.test.sh" ]; then
   "$repo_root/tests/audit-harness.test.sh"
 fi
+"$repo_root/tests/guard-secrets.test.sh"
+"$repo_root/tests/secret-helpers.test.sh"
 
 for operational_script in agent-cost audit-harness bootstrap check-secrets doctor install-global-guidance install-routines install-third-party refresh-plugins release-skills scan-skills sync-plugin-skills sync-skills verify-skill-discovery; do
   script_path="$repo_root/scripts/$operational_script"

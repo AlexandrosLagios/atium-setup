@@ -6,13 +6,15 @@ compatibility: "macOS Keychain through the security CLI. Elsewhere, read the sec
 
 # secrets
 
-Secrets live in the macOS Keychain, one generic-password item per secret, under the account `atium`. Three zsh helpers in `dotfiles/dot_config/atium/zsh/functions.zsh` wrap the `security` CLI:
+Secrets live in the macOS Keychain, one generic-password item per secret, under the account `atium`. Zsh helpers in `dotfiles/dot_config/atium/zsh/functions.zsh` wrap the `security` CLI:
 
 | Helper | Does |
 |---|---|
-| `secret-set NAME` | Prompts twice for the value and stores it. Replaces an existing value. |
+| `secret-set NAME` | Prompts once for the value, trims the whitespace around it, stores it, and prints the stored length. Replaces an existing value. |
+| `with-secret VAR=NAME... -- COMMAND` | Runs the command with each secret in its variable, and replaces each value with `***` in stdout and stderr. |
 | `secret NAME` | Prints the value, for use inside `$(...)`. |
 | `secret-ls` | Lists the stored names, never the values. |
+| `emu-login PREFIX` | Types `PREFIX-email` and `PREFIX-password` into the login fields of the Android emulator. |
 
 ## Names
 
@@ -20,26 +22,39 @@ Name a secret `<system>-<environment>-<what>`, in lower case with hyphens: `acme
 
 ## Read
 
-Read the secret inside the same command that uses it. Each shell call starts fresh, so a value exported in an earlier call is gone.
+Read a secret with `with-secret`, in the same command that uses the secret. Each shell call starts fresh, so a value exported in an earlier call is gone.
 
 ```bash
-API_KEY="$(secret acme-stage-api-key)" ./run-task --env stage
+with-secret API_KEY=acme-stage-api-key -- ./run-task --env stage
 ```
 
-When the helpers are not loaded, call the CLI directly:
+Your shell expands `$API_KEY` before `with-secret` sets the variable. To use the value in an argument or a pipe, give the command as one single-quoted string:
 
-<!-- scan-skills: allow S001 N001 the keychain entry is this skill's documented secret source -->
 ```bash
-API_KEY="$(security find-generic-password -a atium -s acme-stage-api-key -w)" ./run-task --env stage
+with-secret TOKEN=acme-stage-api-key -- 'curl -s -H "Authorization: Bearer $TOKEN" https://example.com/me | jq .id'
 ```
+
+The mask replaces the exact value only. A value that the command encodes, for example in Base64 for HTTP Basic authentication, stays visible. Do not use `curl -v` with Basic authentication.
+
+`$(secret NAME)` inside a command also works, but the output of that command is not masked.
 
 Where `security` does not exist (Linux, CI), read the secret from the environment variable that the task documents.
+
+## Log in on the Android emulator
+
+To log in to an app on the emulator, open the login screen, then run `emu-login PREFIX`:
+
+```bash
+emu-login box-stage
+```
+
+`emu-login` finds the email field and the password field with `uiautomator`, then types the values through `adb`. You never see the password. Then tap the login button yourself. When the field already contains text, `emu-login` appends to that text. Set `ANDROID_SERIAL` when more than one device is connected.
 
 ## Find
 
 Look in this order, and stop at the first hit:
 
-1. Run `secret-ls`, then read the matching name with `secret`.
+1. Run `secret-ls`, then read the matching name with `with-secret`.
 2. Check whether the environment already exports the variable that the command reads.
 3. Ask the user to store the secret with `secret-set NAME`. Name the secret for them.
 
@@ -52,14 +67,21 @@ Do not read a secret from these sources:
 
 ## Store
 
-Only the user runs `secret-set`, because the prompt keeps the value out of the transcript and out of the shell history. Never run `security add-generic-password` with a value on the command line.
+Only the user runs `secret-set`, because the prompt keeps the value out of the transcript and out of the shell history. Never call the `security` CLI to store a secret.
+
+## Guard hook
+
+In Claude Code, the `atium-skills` plugin installs a PreToolUse hook, `guard-secrets.py`. The hook blocks these Bash commands:
+
+- A direct call to the `security` CLI.
+- A call to `secret-set`.
+- A bare `secret NAME` outside `$(...)`, because it prints the value.
+- `echo`, `printf`, or `print` with `$(secret ...)`.
+
+The hook stops an accident, not a determined command: `s=$(secret x); echo "$s"` passes the hook. Obey the rules below as well.
 
 ## Rules
 
 - Never print, log, or echo a secret. Never write a secret to a file, a commit, a PR, or a message.
-- To show which target a connection string points at, print the host only: `printf '%s' "$URI" | sed -E 's#^[a-z+]+://[^@]*@##; s#/.*$##'`.
-- Before a command writes with a secret, check that host against the expected environment, and stop when it differs.
-
-## Older items
-
-`cloudflare-dns` keeps its token under the service `cloudflare-dns-token` with one account label per Cloudflare account. That skill documents its own read command. Store every new secret with `secret-set`.
+- To show which target a connection string points at, print the host only: `with-secret URI=acme-stage-mongo-uri -- 'printf "%s\n" "$URI" | sed -E "s#^[a-z+]+://[^@]*@##; s#/.*\$##"'`.
+- Before a command writes with a secret, check that host against the expected environment, and stop when the host differs.
