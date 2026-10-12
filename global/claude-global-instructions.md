@@ -46,7 +46,12 @@ design.
 
 The full spine (spike with its design, writing-plans,
 subagent-driven-development, review, finishing) is for large work. The whole
-spine on a change of 1 to 3 files is pure ceremony. Route by size:
+spine on a change of 1 to 3 files is pure ceremony.
+
+Size a task by the amount of new logic and the number of independent decisions.
+File count and repository count never raise the tier. Mechanical plumbing does
+not count toward the size: enum entries, registry rows, keys, BAT and config
+files, and doc fixes. Route by size:
 
 - **Understanding or a decision, code optional** (research, investigate,
   brainstorm, "should we", "how would we"): run `spike`. It ends at a spike
@@ -59,22 +64,26 @@ spine on a change of 1 to 3 files is pure ceremony. Route by size:
   filtered tests. Let CI and a quick `/code-review` be the review. Do not create
   an in-session reviewer subagent. No design, no plan, no subagent-driven
   development.
-- **Single self-contained feature (3 to 10 files, one PR)**: run `spike` through
-  its design for real design intent, then implement in-session with the matching
-  domain skill and TDD. Skip `writing-plans` unless real ordering or unknowns
-  exist. Skip subagent-driven-development, because one task has nothing to
-  parallelize.
-  Close with `/code-review` and `/simplify`. Then open or undraft the PR with
+- **Single self-contained feature (one coherent deliverable, under about 500
+  lines of product code)**: this tier holds even when the change spans two
+  repositories. Run `spike` through its design for real design intent, then
+  implement in-session with the matching domain skill and TDD. Skip
+  `writing-plans` unless real ordering or unknowns exist. Skip
+  subagent-driven-development, because one task has nothing to parallelize.
+  Close with `/code-review` and `/simplify`. Then open or undraft each PR with
   `manage-pr`, never with `gh pr create` by hand. `manage-pr` runs the
   `ensure-pr-readiness` gate, which `/code-review` and `/simplify` do not
   replace.
-- **Large multi-task feature**: the full chain is essential. Run spike with its
+- **Large multi-task feature (several independently reviewable deliverables, or
+  real ordering unknowns)**: the full chain is essential. Run spike with its
   design, writing-plans, worktree, subagent-driven-development (or a Workflow
   for deterministic parallel orchestration), a final whole-branch review, and
-  finishing. Do not down-tier.
-- **Cross-service or shared-contract change**: as above, plus
-  `daisy:breaking-change-detector`, an ADR when the change is architectural, and
-  `/security-review` when the change touches auth or PII.
+  finishing. Do not down-tier. Give a per-task reviewer subagent only to a task
+  with real logic. Do a plumbing task in-session, and let the closing
+  `/code-review` cover it.
+- **Cross-service or shared-contract change**: pick the tier by size as above.
+  Then add `daisy:breaking-change-detector`, an ADR when the change is
+  architectural, and `/security-review` when the change touches auth or PII.
 
 The default failure mode is to reach for spike, writing-plans, or
 subagent-driven-development on small work. Prefer a domain skill or a direct

@@ -40,8 +40,14 @@ URL.
 
 ## Interview
 
-Ask one question per message. Give a recommended answer with the reasoning.
-Prefer a multiple-choice question.
+Count the decisions that the sources cannot answer, then pick the format:
+
+- 3 or fewer decisions: ask all of them in one batched multiple-choice prompt,
+  such as one `AskUserQuestion` call in Claude Code. Give each question a
+  recommended answer with the reasoning. Batch only decisions that do not
+  depend on each other.
+- More decisions, or an open-ended problem: ask one question per message. Give
+  a recommended answer with the reasoning. Prefer a multiple-choice question.
 
 Never ask what a source can answer. When an answer opens a gap you can close
 yourself, research the gap before the next question.
@@ -95,14 +101,20 @@ Write the prose under `write-technical-content`. Write these sections:
 When the next step is to build, ask the user whether to start the design now,
 and wait for the answer.
 
+A small design settles 3 or fewer decisions in the interview. A small design
+gets one approval. A larger design gets one approval per section.
+
 1. Design the recommended approach, unless the user picked another one.
 2. Present the design in sections: architecture, components, data flow, error
    handling, and testing. Scale each section to its complexity.
-3. Ask for approval after each section. Revise a section that the user rejects.
+3. Present a small design as one block, and ask for one approval. Ask for
+   approval after each section of a larger design. Revise a section that the
+   user rejects.
 4. Append the approved design to the document as a **Design** section.
 5. Read the document again for placeholders, contradictions, ambiguity, and
    scope. Fix each problem in place.
-6. Ask the user to review the document, and wait for the approval.
+6. For a larger design, ask the user to review the document, and wait for the
+   approval. The one approval of a small design also approves the document.
 
 Apply these principles to the design:
 
