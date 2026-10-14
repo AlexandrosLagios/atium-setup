@@ -39,7 +39,7 @@ ask me first. After you finish a large set of tasks, run one final
 When asked to write a prompt or a handoff for the next session, use the
 `handoff` skill instead of free-form prose. The document then stays structured
 and resumable. To resume from a pasted handoff, no skill is necessary: read the
-handoff and continue. Route into `spike` when the next step is research or a
+handoff and continue. Route into `spike` when the next step is a decision or a
 design.
 
 ## Workflow altitude (match ceremony to task size)
@@ -53,9 +53,13 @@ File count and repository count never raise the tier. Mechanical plumbing does
 not count toward the size: enum entries, registry rows, keys, BAT and config
 files, and doc fixes. Route by size:
 
-- **Understanding or a decision, code optional** (research, investigate,
-  brainstorm, "should we", "how would we"): run `spike`. It ends at a spike
-  document. No design, no plan, no code.
+- **A decision, code optional** (brainstorm, weigh options, "should we", "how
+  would we"): run `spike`. It ends at a spike document. No design, no plan, no
+  code.
+- **Understanding with no decision for me** (research, investigate, explain):
+  answer in the reply, without `spike`. Save a durable finding to memory. Use
+  `deep-research` for a wide web research question. Run `spike` only when the
+  investigation spans more than one session.
 - **Trivial one-liner** (rename, log key, constant, guard): no chain. Direct
   edit plus the one filtered test that covers the change. No design, no plan, no
   subagents.
@@ -105,8 +109,8 @@ edit, and use native CI and `/code-review` as the downstream gate.
 
 ## Brainstorming
 
-Always use the `spike` skill for brainstorming, research, and weighing options.
-`spike` replaces any other brainstorming skill, including wherever another flow
+Use the `spike` skill for brainstorming and for weighing options. `spike`
+replaces any other brainstorming skill, including wherever another flow
 tells you to invoke one.
 
 ## RTK

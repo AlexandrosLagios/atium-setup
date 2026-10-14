@@ -1,6 +1,6 @@
 ---
 name: spike
-description: "Use when the deliverable is understanding, a decision, or a design: research a topic, investigate a behaviour, brainstorm, weigh options, decide an approach, or design a feature before a plan. Reads every source first, interviews the user one question at a time until every aspect that is not straightforward is settled, and writes a spike document that grows into an approved design when the next step is to build. Not for a question the code answers in one read."
+description: "Use when the deliverable is a decision or a design, or an investigation that spans more than one session: brainstorm, weigh options, decide an approach, or design a feature before a plan. Reads the sources first, asks the user only the decisions that change the outcome, and writes a spike document that grows into an approved design when the next step is to build. Not for a question that this session answers with no decision for the user, such as a question the code answers in one read."
 ---
 
 # spike
@@ -17,57 +17,39 @@ rule decides whether a task gets a spike, a design, and a plan.
 
 When the argument is a spike document, read the document once. Without an
 argument, look in the spike directory for a document on the same topic, and ask
-whether that document is the input. Continue from the first open item: an open
-question, the approaches, or the design. Never ask again what the document
-settles.
+whether that document is the input. Continue from the first open item. Never
+ask again what the document settles.
 
 ## Explore
 
-Assess the scope first. When the topic spans several independent subsystems,
-say so, and spike the first one.
+When the topic spans several independent subsystems, say so, and spike the
+first one.
 
-Read before you ask:
-
-- Inside a repository: the code, the docs, and the recent commits.
-- For any topic: the web.
-- Notion, Slack, Gmail, and Drive, when the topic names a project, a ticket, or
-  a person that those hold.
-
-Read only. Never write, send, or create anything in a connected source.
+Read the code, the docs, the recent commits, and the web before you ask. Read
+Notion, Slack, Gmail, and Drive when the topic names a project, a ticket, or a
+person that those sources hold. Never write, send, or create anything in a
+connected source.
 
 Post a findings brief before the first question. Cite each source by path or
 URL.
 
 ## Interview
 
-Count the decisions that the sources cannot answer, then pick the format:
+Ask only the decisions that change the outcome and that no source answers. Ask
+5 decisions at most. For every other branch, take the default that the sources
+and the existing patterns support. Record that default in the document.
 
-- 3 or fewer decisions: ask all of them in one batched multiple-choice prompt,
-  such as one `AskUserQuestion` call in Claude Code. Give each question a
-  recommended answer with the reasoning. Batch only decisions that do not
-  depend on each other.
-- More decisions, or an open-ended problem: ask one question per message. Give
-  a recommended answer with the reasoning. Prefer a multiple-choice question.
+- Batch the decisions that do not depend on each other into one multiple-choice
+  prompt, such as one `AskUserQuestion` call in Claude Code.
+- Ask a decision that depends on an earlier answer in a later message.
+- Give each question a recommended answer with the reasoning.
 
-Never ask what a source can answer. When an answer opens a gap you can close
-yourself, research the gap before the next question.
-
-Ask about every aspect of the problem that is not straightforward. That covers
-the purpose, the constraints, the success criteria, the context you do not
-have, and each branch that an answer opens. Resolve the dependencies between
-decisions one by one.
-
-Stop only when you are certain that the user has been interviewed about every
-aspect that is not straightforward. Say so in one line, then draft.
+When an answer opens a gap that you can close yourself, research the gap before
+the next question. When more than 5 decisions stay open, the topic is too wide.
+Say so, and spike the first part.
 
 Append each decision to the document as it lands. A compacted session then
 loses nothing.
-
-## Approaches
-
-Propose 2 to 3 approaches with their trade-offs. Lead with the recommended one
-and state why. When the topic is a question with no choice to make, write that
-in the section instead.
 
 ## Write the document
 
@@ -89,11 +71,11 @@ Write the prose under `write-technical-content`. Write these sections:
 
 - **Problem**: what the spike set out to answer.
 - **Findings**: what the research established, each item with its path or URL.
-- **Decisions**: one item per answer that closed a branch, as the question, the
-  decision, and the reason.
+- **Decisions**: one item per closed branch, as the question, the decision, and
+  the reason. Mark each default that you took without a question as a default.
 - **Open questions**: what stays unresolved, and who resolves it.
-- **Approaches**: the 2 to 3 approaches, their trade-offs, and the
-  recommendation.
+- **Approaches**: 2 to 3 approaches and their trade-offs, with the recommended
+  approach first. When the topic has no choice to make, write that instead.
 - **Next step**: the design, a ticket, or nothing.
 
 ## Design
@@ -101,32 +83,22 @@ Write the prose under `write-technical-content`. Write these sections:
 When the next step is to build, ask the user whether to start the design now,
 and wait for the answer.
 
-A small design settles 3 or fewer decisions in the interview. A small design
-gets one approval. A larger design gets one approval per section.
+Design the recommended approach, unless the user picked another one. Cover the
+architecture, the components, the data flow, the error handling, and the
+testing. Scale each part to its complexity.
 
-1. Design the recommended approach, unless the user picked another one.
-2. Present the design in sections: architecture, components, data flow, error
-   handling, and testing. Scale each section to its complexity.
-3. Present a small design as one block, and ask for one approval. Ask for
-   approval after each section of a larger design. Revise a section that the
-   user rejects.
-4. Append the approved design to the document as a **Design** section.
-5. Read the document again for placeholders, contradictions, ambiguity, and
-   scope. Fix each problem in place.
-6. For a larger design, ask the user to review the document, and wait for the
-   approval. The one approval of a small design also approves the document.
+- When the interview settled 3 or fewer decisions, present the design as one
+  block, and ask for one approval.
+- For a larger design, present one section at a time, and ask for an approval
+  after each section.
 
-Apply these principles to the design:
+Revise a section that the user rejects. Append the approved design to the
+document as a **Design** section. The approval of the design also approves the
+document.
 
-- Split the system into units with one purpose each. For each unit, state what
-  the unit does, how to use the unit, and what the unit depends on.
-- In an existing codebase, follow the existing patterns. Include a targeted
-  improvement when an existing problem blocks the work.
-- Remove every feature that the work does not need.
-
-Do not invoke `writing-plans` before the user approves the document. After the
-approval, invoke `writing-plans` with the document path, unless the
-workflow-altitude rule skips the plan for the tier.
+Do not invoke `writing-plans` before the approval. After the approval, invoke
+`writing-plans` with the document path, unless the workflow-altitude rule skips
+the plan for the tier.
 
 ## Publish
 
