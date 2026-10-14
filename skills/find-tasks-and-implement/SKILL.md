@@ -123,6 +123,8 @@ Work test first: write the regression test, watch it fail, then fix. Run only th
 
 Open the PR with the repository's manage-pr skill, as a draft, based on <base>, with the title suffix [<CXM-id>]. Never mark the PR ready, never merge, never push a shared branch. Re-verify the branch in the same command as the push.
 
+Never start an app, a worker, a script, or a migration from W: a copied env file can name a production host. Run code only through the test runner.
+
 Never write to a production database, apply infrastructure, or change the tracker task status or assignee.
 
 Return raw data: {task, outcome: pr-opened|needs-human|already-fixed|failed, pr, branch, worktree, detail}.
