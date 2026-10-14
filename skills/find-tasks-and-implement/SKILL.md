@@ -86,9 +86,10 @@ With `triage-only`, report the table and stop.
 
 ### 4. Dispatch the implementers
 
-Dispatch each implementer with `subagent_type: "general-purpose"`,
-`isolation: "worktree"`, and `run_in_background: true`. The worktree isolation
-copies the gitignored environment files that `.worktreeinclude` lists.
+Dispatch each implementer with `subagent_type: "general-purpose"` and
+`run_in_background: true`. Each implementer creates its own worktree from
+`origin/<base>`. Do not use `isolation: "worktree"`: a Wave-CXM hook refuses
+that isolation when the main checkout is on a branch other than the base.
 
 When an implementer finishes, start the next queued task. Do not poll. The
 completion notification starts the next step.
@@ -114,7 +115,7 @@ Replace each placeholder before the dispatch:
 ~~~
 Implement tracker task <CXM-id> "<title>" (<task URL>) in <repository> as one draft PR. Nobody watches this run. When the task turns out to need a decision, stop and return needs-human with the question.
 
-Setup: your shell starts in an isolated worktree. Run git fetch origin <base>, then git switch -c <type>/<short-slug> origin/<base>. The branch name is a Conventional Commits slug, ASCII only, 64 characters at most. Never keep the generated worktree branch name. Run pnpm i.
+Setup (W = <worktrees root>/<type>-<short-slug>): run git -C <session checkout> fetch origin <base>, then git -C <session checkout> worktree add -b <type>/<short-slug> <W> origin/<base>. The branch name is a Conventional Commits slug, ASCII only, 64 characters at most. Copy the gitignored files that .worktreeinclude lists from <session checkout> into W. Work only inside W, with absolute paths or git -C <W>. Never run git in another session's worktree. Run pnpm i in W. Leave W in place when you finish.
 
 Read the task page and its comments. Read AGENTS.md and the rule docs it links before you design the change.
 
