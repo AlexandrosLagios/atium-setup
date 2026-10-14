@@ -8,3 +8,6 @@ babysit-prs
 graphify
 # steal-skills depends on Claude's read-only Explore subagent type.
 steal-skills
+# find-tasks-and-implement dispatches background Claude subagents in isolated
+# worktrees and removes AskUserQuestion for an unattended run.
+find-tasks-and-implement
