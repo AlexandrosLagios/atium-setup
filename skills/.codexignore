@@ -4,10 +4,5 @@
 audit-harness
 # babysit-prs needs Claude loop scheduling and push notifications.
 babysit-prs
-# graphify dispatches Claude-specific extraction agents.
-graphify
 # steal-skills depends on Claude's read-only Explore subagent type.
 steal-skills
-# find-tasks-and-implement dispatches background Claude subagents in isolated
-# worktrees and removes AskUserQuestion for an unattended run.
-find-tasks-and-implement

@@ -18,6 +18,6 @@ grep -Eq '^description: Use when ' "$skill_path"
 grep -Fq '`skills/<kebab-case-name>/`' "$skill_path"
 grep -Fq '`skills/.codexignore`' "$skill_path"
 grep -Fq 'skill-creator' "$skill_path"
-grep -Fq 'writing-skills' "$skill_path"
+grep -Fq 'claude plugin eval' "$skill_path"
 
 printf '%s\n' 'personal skills guard tests passed'

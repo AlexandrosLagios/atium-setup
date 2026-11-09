@@ -31,8 +31,8 @@ Do not author a skill directly in `~/.claude/skills`, `~/.claude/plugins`, or
 ## Workflow
 
 1. Use `skill-creator` to initialize or update the skill in `skills/`.
-2. Use `writing-skills` to test and validate the skill's triggering and
-   behavior before deployment.
+2. Test the skill's triggering and behavior before deployment, with
+   `claude plugin eval` where Claude Code is available.
 3. Check for credentials, private endpoints, work-only paths, and platform-only
    tool assumptions. Keep secrets out of the repository.
 4. Never spend a portable skill on a Claude-only convenience. A field outside
