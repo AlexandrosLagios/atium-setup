@@ -36,11 +36,7 @@ For a larger set of tasks, use subagent-driven development by default. Do not
 ask me first. After you finish a large set of tasks, run one final
 `/ponytail-review` and one `/simplify`.
 
-When asked to write a prompt or a handoff for the next session, use the
-`handoff` skill instead of free-form prose. The document then stays structured
-and resumable. To resume from a pasted handoff, no skill is necessary: read the
-handoff and continue. Route into `spike` when the next step is a decision or a
-design.
+Route into `spike` when the next step is a decision or a design.
 
 ## Workflow altitude (match ceremony to task size)
 
