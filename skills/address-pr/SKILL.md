@@ -46,14 +46,19 @@ Execution loop for driving an existing PR's outstanding feedback to green: gathe
 
 7. **Push.** For each review thread a pushed fix addresses, post a **brief reply describing the fix**. Post the refutation reply on each thread you disproved. Do **not** auto-resolve threads: leave resolution to the reviewer who raised it. Never post a reply that carries neither a code change nor verifiable evidence.
 
-8. **Report.** Summarize **fixed** vs **refuted** vs **needs your input** vs **reported-and-stopped** (unrelated CI after merge-back).
+8. **Report.** Summarize **fixed** vs **refuted** vs **needs your input** vs **reported-and-stopped** (unrelated CI after merge-back), and name the guardrail session from step 9 if you started one.
 
-9. **Suggest permanent guardrails, and do not implement them.** Scan the feedback you just fixed for items a permanent mechanism could prevent, and surface them to the user as suggestions, and never bundle the guardrail change into this PR. Map each candidate to the cheapest mechanism that fits:
+9. **Hand off permanent guardrails, and never bundle them into this PR.** Scan all the review comments, fixed or not, for items a permanent mechanism could prevent. Map each candidate to the cheapest mechanism that fits:
    - Style/formatting nit (quotes, spacing, import order, trailing commas) → a Prettier setting or an ESLint rule.
-   - A code pattern a linter could catch (forbidden API, missing `await`, naming, banned import) → an ESLint rule.
+   - A code pattern a linter could catch (forbidden API, missing `await`, a redundant boolean comparison, banned import) → an ESLint rule.
    - A repeated expectation about *how work is done here* (process, structure, conventions) → a project skill or a new/updated convention doc (`AGENTS.md`, `CLAUDE.md`, `docs/`).
 
-   Only raise it when **both** hold: the same class of comment is plausibly recurring (not a one-off), **and** no existing config/skill/doc already covers it (check `.eslintrc*`/`eslint.config.*`, `.prettierrc*`, the convention docs, and project skills before suggesting). One line per suggestion: what was commented → what would prevent it → where it'd live. If nothing qualifies, say so in one line and move on.
+   Drop a candidate that an existing config, skill, or doc already covers. Check `.eslintrc*`/`eslint.config.*`, `.prettierrc*`, the convention docs, and the project skills first.
+
+   - **Lint and format candidates: start a separate session, without asking.** Brief it with each comment, its file and line, and the code it points at. Tell it to work in its own worktree off the base branch, to use only rules from plugins already installed, to count each rule's new violations with the repository's lint command, to autofix the mechanical violations, to ask the user before it adopts a noisy rule, and to open its own PR through the project's PR skill. Use the harness's session tool, for example `start_session` in Claude Desktop. Where the harness allows only a proposal, propose the session. Where the harness cannot start a session, list the candidates as suggestions. On an unattended run, list them in the run's output and start nothing.
+   - **Skill and doc candidates: suggest them.** Raise one only when the same class of comment plausibly recurs. Write one line each: what was commented → what would prevent it → where it would live.
+
+   If nothing qualifies, say so in one line.
 
 ## Refuting a review comment
 
@@ -101,7 +106,8 @@ A refutation is the one reply an unattended run may post, under the same evidenc
 | CI failure, unrelated (high confidence) | Merge-back base; if still red, report in chat |
 | Verification fails | Stop before pushing |
 | Reply with neither a code change nor verifiable evidence | Never post on the PR |
-| Recurring nit a rule/doc could prevent | Suggest the guardrail to the user; do not add it to this PR |
+| Style comment a lint or format rule could catch | Start a separate session that adds the rule in its own PR; never add it to this PR |
+| Recurring expectation a skill or doc could capture | Suggest it to the user; do not add it to this PR |
 
 ## Common mistakes
 
@@ -115,5 +121,5 @@ A refutation is the one reply an unattended run may post, under the same evidenc
 - **Chasing unrelated CI** without a merge-back, or chasing it forever after one.
 - **Pushing before verifying** the affected typecheck/tests.
 - **Duplicating project conventions.** Defer to the project's PR/merge-back skills instead of re-deriving title/description/policy rules.
-- **Bundling guardrail changes into the PR.** A suggested lint rule / Prettier setting / convention doc is a *separate* follow-up: surface it, and do not smuggle it into this diff.
+- **Bundling guardrail changes into the PR.** A lint rule or Prettier setting goes to its own session and PR, and a convention doc is a suggestion. Neither goes into this diff.
 - **Suggesting a guardrail that already exists.** Check the lint/format config and convention docs first; do not propose what is already there.
